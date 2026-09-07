@@ -83,6 +83,7 @@ def validate_replay(choices: list[int]) -> None:
     """Replay the actual branching story on a temporary hero without input."""
     from contextlib import redirect_stdout
     from io import StringIO
+
     from hero_on_probation import game
     from hero_on_probation.town import explore_town
 

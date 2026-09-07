@@ -6,7 +6,15 @@ build-backend = "hatchling.build"
 name = "hero-on-probation"
 version = "0.1.0"
 description = "A short comic fantasy adventure about returning a frying pan."
+readme = "README.md"
 requires-python = ">=3.10"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hero_on_probation"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]

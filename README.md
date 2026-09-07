@@ -12,7 +12,17 @@ uv sync
 uv run -m hero_on_probation
 ```
 
-For editable installation: `uv pip install -e .` after creating an environment.
+From the project root, the grading installation and launch commands are:
+
+```sh
+uv venv
+uv pip install -e .
+uv run -m hero_on_probation
+```
+
+All commands work in a text terminal; no GUI, network service or external data
+is needed during play. Run commands from the project root so saves use the
+same location each time.
 Enter a displayed number to choose, or `quit` to exit. Invalid input is retried.
 At any choice (and after the ending), use `status`, `bag`, `quests`, or `journal`.
 The inventory tracks quantities, equipped items, the quest pan and its condition.
@@ -27,7 +37,7 @@ Save files are excluded from Git. Progress is not saved automatically.
 Version-one saves are rejected because the new town changes choice order.
 Existing files are not altered by loading. Saving replaces the selected slot.
 
-## Prototype scope
+## Game scope
 
 Keep the adventure short: one pan delivery, one optional town hub, two brief
 side errands, one bridge encounter and three endings. Do not add more locations
@@ -68,9 +78,27 @@ Pip and Bea produce different ghost-quest dialogue and items.
 uv run python -m unittest discover -s tests -v
 ```
 
-`models.py` stores the player's state. `game.py` contains the scene functions
-and input handling. This is an initial learning prototype, not the final
-course submission. `town.py` holds optional errands and purchases. Tests cover
-single-payment rewards, spending, equipment effects and save replay.
-Future milestones include richer character models,
-expanded side quests and documented public GitHub development history.
+## Code and limitations
+
+- `models.py`: the Hero data class with gold, inventory, equipment and progress.
+- `game.py`: numbered input, main scenes and ending achievements.
+- `town.py`: optional errands and purchases.
+- `session.py`: information commands, validated JSON saves and replay.
+- `tests/test_adventure.py`: rewards, purchases, endings and save regression tests.
+
+The game deliberately uses a short, deterministic choice-based duel rather than
+a full combat engine. Achievements belong to one playthrough. There is one save
+slot and no autosave. Story changes can require a new save version, because
+saves replay decisions rather than storing a snapshot of the call stack.
+
+The public API exposes `Hero`, for example:
+
+```python
+from hero_on_probation import Hero
+
+hero = Hero()
+print(hero.gold)
+```
+
+Development provenance is documented in [the development log](docs/development-log.md).
+Outstanding release checks are in [the submission checklist](docs/submission-checklist.md).

@@ -1,0 +1,23 @@
+name: Verify game
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install with grading command
+        run: |
+          uv venv --python ${{ matrix.python-version }}
+          uv pip install -e .
+      - name: Unit tests
+        run: uv run --no-sync python -m unittest discover -s tests -v
+      - name: Module entry point
+        run: printf 'quit\n' | uv run --no-sync -m hero_on_probation
+      - name: Code style
+        run: |
+          uvx ruff check .
+          uvx ruff format --check .
