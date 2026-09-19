@@ -42,7 +42,8 @@ Existing files are not altered by loading. Saving replaces the selected slot.
 ## Game scope
 
 Keep the adventure short: one pan delivery, one optional town hub, two brief
-side errands, one bridge encounter and three endings. Do not add more locations
+side errands, one bridge encounter, three delivery endings and one early exit ending.
+Do not add more locations
 or a long combat grind. Aim for short dialogue beats followed by a decision;
 humour should come from choices and their consequences.
 
@@ -53,16 +54,23 @@ Each ending unlocks a different achievement:
 | Delivery Complete | DELIVERY HERO — defeated the shipping estimate |
 | Dish Duty | LORD OF THE RINSE — came for gold, stayed for grease |
 | Accidental Catering | BREADWINNER — delivered edible cookware |
+| Clocked Out | ANY% HERO — skipped the quest and the unpaid lunch break |
 
 Use `achievements` to review the current playthrough's unlocks. They are restored
 with a saved playthrough, not collected globally across separate new games.
 
 The guild, an explorable town, the bridge and the castle; two companions,
-three endings and optional kindness callbacks.
+three delivery endings, an optional refusal ending and kindness callbacks.
 At the guild, optionally inspect your contract and pockets, ask about the parcel,
 and meet the companions before recruiting one. Ring the bell, accept the parcel,
 then choose a companion to advance. Questions can be skipped or revisited;
 repeating them grants no extra items or money. The delivery remains the main job.
+Alternatively, choose **5. Decline the job and leave** at the parcel menu for the
+short **Clocked Out** ending. This ends the adventure with your original 3 gold,
+no companion, no accepted delivery and the **ANY% HERO** achievement. Review
+commands and save/load still work afterward. Restart the program without loading
+that ending to play a delivery route. Existing version-three saves remain
+compatible: the new choice is appended without renumbering the original options.
 Bridge choices change gold and the pan's condition; the pan's condition at delivery
 determines the ending. The duel is a single
 choice encounter, not a full combat system. Equipment has specific story effects

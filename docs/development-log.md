@@ -45,3 +45,27 @@ code and check the course's policy on AI assistance before submission.
   whether optional questions feel useful. No further story expansion yet.
 - Git record: the commit containing this entry is titled
   `Make the guild opening discoverable through player choices`.
+
+## 2026-09-19 — Refuse the delivery: a short alternate ending
+
+- Feedback: the student wanted the first job offer to include a real refusal,
+  leading directly to a humorous speedrun ending instead of forcing acceptance.
+- Change: appended option 5 at the parcel menu, explicitly marked as ending the
+  adventure. Refusal unlocks `CLOCKED OUT` / `ANY% HERO`, preserves the initial
+  3 gold and never awards the pan, accepts the quest or recruits a companion.
+  The ending retains status, bag, quests, journal, achievements and save/load.
+- Implementation: the guild reports whether the job was accepted. Live play and
+  replay validation share a story runner so both stop at the early ending.
+  Achievement recording is shared with the three unchanged delivery endings.
+- Compatibility: retained save version 3 and its filename. Appending the option
+  preserves all previous valid choice sequences. Replay rejects extra decisions
+  after refusal and never proceeds into town.
+- Verification: 18 local unit tests passed; new tests cover immediate refusal,
+  refusal after exploration, unchanged resources, skipped later scenes, repeated
+  load without duplicate achievements, review commands and invalid trailing
+  decisions. Existing delivery-route and save tests still pass. Ruff lint and
+  format checks passed. Remote CI is a separate check.
+- Authorship/time: AI-assisted implementation of student feedback; student hours
+  were not measured and are not inferred from this change.
+- Next: student playtest of option 5 and the short ending's wording.
+- Git record: `Add a refusal speedrun ending at the guild`.

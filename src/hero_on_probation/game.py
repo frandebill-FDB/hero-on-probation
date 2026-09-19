@@ -63,8 +63,8 @@ def choose(prompt: str, options: list[str]) -> int:
         print(f"Enter a number from 1 to {len(options)}, or quit.")
 
 
-def guild(hero: Hero) -> None:
-    """Discover the job through optional questions and recruit a companion."""
+def guild(hero: Hero) -> bool:
+    """Return whether the player accepts the delivery and recruits a companion."""
     print("\nHERO ON PROBATION")
     print('You wake up at a counter. Your sleeve is stamped "TEMPORARY".')
     seen: set[int] = set()
@@ -95,16 +95,20 @@ def guild(hero: Hero) -> None:
     seen.clear()
     while True:
         action = choose(
-            "Ask about the parcel, or accept the delivery:",
+            "Ask about the parcel, accept the delivery, or decline:",
             [
                 "What am I delivering?",
                 "Who is it for?",
                 "What if it gets damaged?",
                 "Take the parcel and accept the job.",
+                "Decline the job and leave. (End adventure.)",
             ],
         )
         if action == 4:
             break
+        if action == 5:
+            refusal_ending(hero)
+            return False
         if action in seen:
             print('Receptionist: "Same answer. Still five gold."')
             continue
@@ -124,6 +128,35 @@ def guild(hero: Hero) -> None:
     hero.quests["Return the pan"] = "Active"
     hero.journal.append("Accepted the pan delivery. Received the quest pan.")
     meet_companions(hero)
+    return True
+
+
+def unlock_achievement(hero: Hero, name: str, description: str) -> None:
+    """Record an ending achievement once and display its punchline."""
+    if name not in hero.achievements:
+        hero.achievements.append(name)
+        hero.journal.append(f"Achievement unlocked: {name}.")
+    print(f"\n*** ACHIEVEMENT UNLOCKED: {name} ***")
+    print(description)
+
+
+def refusal_ending(hero: Hero) -> None:
+    """Finish before accepting the parcel, without delivery rewards or items."""
+    print('You: "No, thanks. I am taking the day off."')
+    print('Receptionist: "You have been here for twelve seconds."')
+    print('You: "And already I need a break."')
+    print("You leave the box on the counter and walk out. Nobody stops you.")
+    print("\nENDING: CLOCKED OUT")
+    hero.journal.append(
+        "Declined the delivery. Ending: CLOCKED OUT. No pay, no dishes."
+    )
+    unlock_achievement(
+        hero,
+        "ANY% HERO",
+        "You skipped the quest, the boss and the unpaid lunch break.",
+    )
+    print(f"Gold: {hero.gold} | Companion: None | Completed quests: 0")
+    print("Pan: not your problem. Probation: someone else's problem.")
 
 
 def meet_companions(hero: Hero) -> None:
@@ -329,11 +362,7 @@ def arrival(hero: Hero) -> None:
         ),
     }
     achievement, description = achievements[ending]
-    if achievement not in hero.achievements:
-        hero.achievements.append(achievement)
-        hero.journal.append(f"Achievement unlocked: {achievement}.")
-    print(f"\n*** ACHIEVEMENT UNLOCKED: {achievement} ***")
-    print(description)
+    unlock_achievement(hero, achievement, description)
     hero.inventory.pop("Demon King's Pan", None)
     hero.quests["Return the pan"] = "Done"
     hero.journal.append(
@@ -343,6 +372,14 @@ def arrival(hero: Hero) -> None:
     completed = sum(state == "Done" for state in hero.quests.values())
     print(f"Completed quests: {completed} | Weapon: {hero.equipment['Weapon']}")
     print("Dinner: obtained. Probation: extended.")
+
+
+def play_adventure(hero: Hero) -> None:
+    """Run the same story path for live play and save validation."""
+    if guild(hero):
+        explore_town(hero, choose)
+        bridge(hero)
+        arrival(hero)
 
 
 def main() -> None:
@@ -358,10 +395,7 @@ def main() -> None:
         session = Session(hero, replay)
         try:
             with redirect_stdout(ReplayOutput(sys.stdout)):
-                guild(hero)
-                explore_town(hero, choose)
-                bridge(hero)
-                arrival(hero)
+                play_adventure(hero)
             if session.restoring:
                 session.restoring = False
                 print("Completed adventure restored.")

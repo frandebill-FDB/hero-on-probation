@@ -88,7 +88,6 @@ def validate_replay(choices: list[int]) -> None:
     from io import StringIO
 
     from hero_on_probation import game
-    from hero_on_probation.town import explore_town
 
     previous = game.session
     trial = Session(Hero(), choices)
@@ -97,10 +96,7 @@ def validate_replay(choices: list[int]) -> None:
     try:
         with redirect_stdout(StringIO()):
             try:
-                game.guild(trial.hero)
-                explore_town(trial.hero, game.choose)
-                game.bridge(trial.hero)
-                game.arrival(trial.hero)
+                game.play_adventure(trial.hero)
             except game.ReplayComplete:
                 pass
         if trial.replay:

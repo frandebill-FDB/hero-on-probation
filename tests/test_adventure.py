@@ -14,6 +14,79 @@ from hero_on_probation.town import ghost, rats, shop
 
 
 class AdventureTests(unittest.TestCase):
+    def test_declining_finishes_without_accepting_or_starting_later_scenes(self):
+        for decisions in ([3, 5], [1, 2, 3, 1, 2, 3, 5]):
+            with self.subTest(decisions=decisions):
+                output = StringIO()
+                with (
+                    patch(
+                        "builtins.input",
+                        side_effect=[str(n) for n in decisions] + ["quit"],
+                    ),
+                    patch.object(game, "meet_companions") as companions,
+                    patch.object(game, "explore_town") as town,
+                    patch.object(game, "bridge") as bridge,
+                    patch.object(game, "arrival") as arrival,
+                    redirect_stdout(output),
+                ):
+                    game.main()
+                for scene in (companions, town, bridge, arrival):
+                    scene.assert_not_called()
+                hero = game.session.hero
+                self.assertEqual(hero.gold, 3)
+                self.assertEqual(hero.companion, "")
+                self.assertEqual(hero.inventory, Hero().inventory)
+                self.assertEqual(hero.quests, {})
+                self.assertEqual(hero.achievements, ["ANY% HERO"])
+                self.assertIn("ENDING: CLOCKED OUT", output.getvalue())
+                self.assertNotIn("Job accepted:", output.getvalue())
+
+    def test_refusal_save_restores_once_and_keeps_review_commands(self):
+        output = StringIO()
+        commands = [
+            "3",
+            "5",
+            "save",
+            "load",
+            "load",
+            "status",
+            "bag",
+            "quests",
+            "journal",
+            "achievements",
+            "quit",
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "save.json"
+            with (
+                patch.object(session, "SAVE_PATH", path),
+                patch("builtins.input", side_effect=commands),
+                redirect_stdout(output),
+            ):
+                game.main()
+            self.assertEqual(
+                json.loads(path.read_text()), {"version": 3, "choices": [3, 5]}
+            )
+        self.assertEqual(game.session.hero.gold, 3)
+        self.assertEqual(game.session.hero.achievements, ["ANY% HERO"])
+        self.assertEqual(
+            game.session.hero.journal.count("Achievement unlocked: ANY% HERO."), 1
+        )
+        text = output.getvalue()
+        self.assertEqual(text.count("ENDING: CLOCKED OUT"), 1)
+        self.assertEqual(text.count("Completed adventure restored."), 2)
+        self.assertNotIn("Visit the equipment shop", text)
+
+    def test_refusal_replay_rejects_decisions_after_ending(self):
+        original = session.Session(Hero(gold=42))
+        game.session = original
+        session.validate_replay([3, 5])
+        self.assertIs(game.session, original)
+        with self.assertRaisesRegex(ValueError, "after the ending"):
+            session.validate_replay([3, 5, 1])
+        self.assertIs(game.session, original)
+        self.assertEqual(original.hero.gold, 42)
+
     def test_new_opening_reaches_all_three_endings(self):
         for choices, achievement, gold in (
             ([3, 4, 3, 2, 4, 4, 2], "DELIVERY HERO", 8),
@@ -179,7 +252,7 @@ class AdventureTests(unittest.TestCase):
         self.assertIs(game.session, original)
         self.assertEqual(hero.gold, 42)
         with self.assertRaises(ValueError):
-            session.validate_replay([3, 5])
+            session.validate_replay([3, 6])
         self.assertIs(game.session, original)
 
     def test_save_load_after_rewards_does_not_duplicate_them(self):
