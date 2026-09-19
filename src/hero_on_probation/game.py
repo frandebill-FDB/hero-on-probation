@@ -64,32 +64,102 @@ def choose(prompt: str, options: list[str]) -> int:
 
 
 def guild(hero: Hero) -> None:
-    """Introduce the delivery and let the player meet their companion."""
+    """Discover the job through optional questions and recruit a companion."""
     print("\nHERO ON PROBATION")
-    print('Goddess: "Welcome, chosen hero! The other candidate cancelled."')
-    print('Goddess: "Summoning fees are non-refundable. Please report to work."')
-    job = choose(
-        "The guild has three jobs:",
-        [
-            "Defeat the Demon King. Reward: 10,000 gold.",
-            "Remove basement rats. Reward: 20 gold.",
-            "Return the Demon King's frying pan. Reward: 5 gold.",
-        ],
+    print('You wake up at a counter. Your sleeve is stamped "TEMPORARY".')
+    seen: set[int] = set()
+    while True:
+        action = choose(
+            "Explore the counter, or ring the bell to begin work:",
+            ["Read your contract.", "Check your pockets.", "Ring the service bell."],
+        )
+        if action == 3:
+            break
+        if action in seen:
+            print("Nothing has changed. The bell is still waiting.")
+            continue
+        seen.add(action)
+        if action == 1:
+            print(
+                "JOB: HERO (TEMPORARY). Lunch: not included. Destiny: non-refundable."
+            )
+            hero.journal.append("Read the contract: temporary hero, no lunch included.")
+        else:
+            print(f"You count {hero.gold} gold. Counting again will not earn interest.")
+            print(
+                "A wooden sword hangs at your belt. Type bag or status to inspect it."
+            )
+            hero.journal.append("Checked existing coins and equipment. No pay yet.")
+
+    print('A receptionist pushes a box towards you. "One delivery. Five gold."')
+    seen.clear()
+    while True:
+        action = choose(
+            "Ask about the parcel, or accept the delivery:",
+            [
+                "What am I delivering?",
+                "Who is it for?",
+                "What if it gets damaged?",
+                "Take the parcel and accept the job.",
+            ],
+        )
+        if action == 4:
+            break
+        if action in seen:
+            print('Receptionist: "Same answer. Still five gold."')
+            continue
+        seen.add(action)
+        answers = {
+            1: 'Inside is a frying pan. "Please do not test it on my desk."',
+            2: 'The label says DEMON KING. "Home delivery. No boss fight required."',
+            3: '"Bring it back intact for five gold. Dent it, and you wash his dishes."',
+        }
+        print(answers[action])
+        hero.journal.append(f"Delivery question: {answers[action]}")
+
+    print(
+        "Job accepted: deliver the Demon King's pan before dinner, intact, for 5 gold."
     )
-    if job == 1:
-        print('Receptionist: "Three years of hero experience required. Next."')
-    elif job == 2:
-        print('Receptionist: "The rats accepted that job. They are moving out."')
-    print("You receive a frying pan, a wooden sword, and an unpaid lunch break.")
     hero.inventory["Demon King's Pan"] = 1
     hero.quests["Return the pan"] = "Active"
     hero.journal.append("Accepted the pan delivery. Received the quest pan.")
-    print('Receptionist: "Return the pan before dinner. Preferably still a pan."')
+    meet_companions(hero)
+
+
+def meet_companions(hero: Hero) -> None:
+    """Let players discover each companion's joke before choosing."""
+    print("Two volunteers wait by the exit: Pip holds a wand. Bea checks the exits.")
+    seen: set[int] = set()
+    while True:
+        action = choose(
+            "Meet the volunteers, or choose someone now:",
+            [
+                "Ask Pip for a magic demonstration.",
+                "Ask Bea about her last battle.",
+                "Choose a companion and leave the guild.",
+            ],
+        )
+        if action == 3:
+            break
+        if action in seen:
+            print("You have heard their pitch. Neither has improved it.")
+            continue
+        seen.add(action)
+        if action == 1:
+            print(
+                'Pip turns a pencil into a baguette. Receptionist: "Third one today."'
+            )
+            print('Pip: "Objects into bread. Easy! Turning them back? Still learning."')
+            hero.journal.append("Met Pip: turns objects into bread, not back again.")
+        else:
+            print('Bea: "Everyone escaped safely." You: "And the enemy?"')
+            print('Bea: "Also safe. I find exits, not unnecessary fights."')
+            hero.journal.append("Met Bea: prefers safe routes to fighting.")
     partner = choose(
         "Choose a companion:",
         [
-            "Pip, a wizard who turns things into bread. Reversal pending.",
-            "Bea, an undefeated knight with excellent escape routes.",
+            "Recruit Pip, the wizard.",
+            "Recruit Bea, the knight.",
         ],
     )
     hero.companion = "Pip" if partner == 1 else "Bea"
@@ -281,7 +351,7 @@ def main() -> None:
     print(
         "Use numbers, or status / bag / quests / journal / achievements / save / load / quit."
     )
-    print("One save slot: saves/adventure.json. Saving replaces that slot.")
+    print("One save slot: saves/adventure-v3.json. Saving replaces that slot.")
     replay = None
     while True:
         hero = Hero()

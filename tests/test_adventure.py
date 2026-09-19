@@ -14,20 +14,97 @@ from hero_on_probation.town import ghost, rats, shop
 
 
 class AdventureTests(unittest.TestCase):
+    def test_new_opening_reaches_all_three_endings(self):
+        for choices, achievement, gold in (
+            ([3, 4, 3, 2, 4, 4, 2], "DELIVERY HERO", 8),
+            ([3, 4, 3, 2, 4, 3, 1, 2], "LORD OF THE RINSE", 3),
+            ([3, 4, 3, 1, 4, 4, 2, 2], "BREADWINNER", 8),
+        ):
+            with self.subTest(achievement=achievement):
+                commands = [str(n) for n in choices] + ["quit"]
+                with (
+                    patch("builtins.input", side_effect=commands),
+                    redirect_stdout(StringIO()),
+                ):
+                    game.main()
+                self.assertEqual(game.session.hero.achievements, [achievement])
+                self.assertEqual(game.session.hero.gold, gold)
+
     def test_loading_hides_previous_story_and_keeps_current_menu(self):
         output = StringIO()
         with tempfile.TemporaryDirectory() as directory:
             with (
                 patch.object(session, "SAVE_PATH", Path(directory) / "save.json"),
-                patch("builtins.input", side_effect=["3", "2", "save", "load", "quit"]),
+                patch(
+                    "builtins.input",
+                    side_effect=["3", "4", "3", "2", "save", "load", "quit"],
+                ),
                 redirect_stdout(output),
             ):
                 game.main()
         text = output.getvalue()
-        self.assertEqual(text.count("Welcome, chosen hero!"), 1)
+        self.assertEqual(text.count("You wake up at a counter."), 1)
         self.assertEqual(text.count("Visit the equipment shop."), 2)
         self.assertNotIn("Restored choice:", text)
-        self.assertEqual(game.session.history, [3, 2])
+        self.assertEqual(game.session.history, [3, 4, 3, 2])
+
+    def test_opening_exploration_is_optional_and_rewards_are_not_repeated(self):
+        for choices in (
+            [3, 4, 3, 1],
+            [1, 1, 2, 2, 3, 1, 1, 2, 3, 4, 1, 1, 2, 2, 3, 1],
+        ):
+            with self.subTest(choices=choices):
+                hero = Hero()
+                self.run_choices(hero, choices, lambda h, _: game.guild(h))
+                self.assertEqual(hero.gold, 3)
+                self.assertEqual(hero.companion, "Pip")
+                self.assertEqual(hero.inventory["Demon King's Pan"], 1)
+                self.assertNotIn("Bread Resignation", hero.inventory)
+                self.assertEqual(hero.pan, "intact")
+                self.assertEqual(hero.quests["Return the pan"], "Active")
+                self.assertEqual(len(hero.journal), len(set(hero.journal)))
+
+    def test_save_load_at_each_opening_stage(self):
+        for decisions, menu in (
+            ([1, 2], "Explore the counter"),
+            ([3, 1, 2], "Ask about the parcel"),
+            ([3, 4, 1, 2], "Meet the volunteers"),
+            ([3, 4, 3], "Choose a companion:"),
+        ):
+            with self.subTest(decisions=decisions):
+                output = StringIO()
+                commands = [str(n) for n in decisions] + ["save", "load", "quit"]
+                with tempfile.TemporaryDirectory() as directory:
+                    with (
+                        patch.object(
+                            session, "SAVE_PATH", Path(directory) / "save.json"
+                        ),
+                        patch("builtins.input", side_effect=commands),
+                        redirect_stdout(output),
+                    ):
+                        game.main()
+                self.assertEqual(game.session.history, decisions)
+                self.assertEqual(game.session.hero.gold, 3)
+                restored = output.getvalue().split("Save loaded.", 1)[1]
+                self.assertIn(menu, restored)
+                self.assertNotIn("You wake up", restored)
+                self.assertEqual(
+                    len(game.session.hero.journal), len(set(game.session.hero.journal))
+                )
+
+    def test_older_save_is_rejected_without_changing_file_or_live_state(self):
+        hero = Hero(gold=42)
+        current = session.Session(hero)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "old.json"
+            old_save = json.dumps({"version": 2, "choices": [3, 1]})
+            path.write_text(old_save, encoding="utf-8")
+            with patch.object(session, "SAVE_PATH", path):
+                with self.assertRaisesRegex(ValueError, "version-3"):
+                    current.command("load")
+            self.assertEqual(path.read_text(encoding="utf-8"), old_save)
+        self.assertEqual(hero.gold, 42)
+        self.assertEqual(current.history, [])
 
     def test_each_ending_unlocks_its_own_achievement(self):
         for pan, achievement in [
@@ -98,7 +175,7 @@ class AdventureTests(unittest.TestCase):
         hero = Hero(gold=42)
         original = session.Session(hero)
         game.session = original
-        session.validate_replay([3, 1, 2, 1, 3, 2, 4, 5, 2])
+        session.validate_replay([3, 4, 3, 1, 2, 1, 3, 2, 4, 5, 2])
         self.assertIs(game.session, original)
         self.assertEqual(hero.gold, 42)
         with self.assertRaises(ValueError):
@@ -106,7 +183,8 @@ class AdventureTests(unittest.TestCase):
         self.assertIs(game.session, original)
 
     def test_save_load_after_rewards_does_not_duplicate_them(self):
-        commands = ["3", "1", "2", "1", "3", "2", "4", "5", "2", "save", "load", "quit"]
+        commands = [str(n) for n in [3, 4, 3, 1, 2, 1, 3, 2, 4, 5, 2]]
+        commands += ["save", "load", "quit"]
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "adventure.json"
             with (
@@ -118,10 +196,10 @@ class AdventureTests(unittest.TestCase):
             self.assertEqual(game.session.hero.gold, 17)
             self.assertEqual(game.session.hero.achievements, ["DELIVERY HERO"])
             self.assertEqual(game.session.hero.quests["Return the pan"], "Done")
-            self.assertEqual(json.loads(path.read_text())["version"], 2)
+            self.assertEqual(json.loads(path.read_text())["version"], 3)
 
     def test_save_at_nested_shop_choice(self):
-        commands = ["3", "2", "1", "save", "load", "quit"]
+        commands = ["3", "4", "3", "2", "1", "save", "load", "quit"]
         with tempfile.TemporaryDirectory() as directory:
             with (
                 patch.object(session, "SAVE_PATH", Path(directory) / "save.json"),
@@ -129,7 +207,7 @@ class AdventureTests(unittest.TestCase):
                 redirect_stdout(StringIO()),
             ):
                 game.main()
-            self.assertEqual(game.session.history, [3, 2, 1])
+            self.assertEqual(game.session.history, [3, 4, 3, 2, 1])
             self.assertEqual(game.session.hero.gold, 3)
 
 

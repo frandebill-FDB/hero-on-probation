@@ -29,12 +29,14 @@ The inventory tracks quantities, equipped items, the quest pan and its condition
 Turning your wooden sword into bread removes it from inventory; an equipped
 Iron Sword stays equipped.
 
-Use `save` to replace the local slot `saves/adventure.json`, and `load` to resume.
-Version-two saves store decisions and replay them from a fresh character, so
+Use `save` to replace the local slot `saves/adventure-v3.json`, and `load` to resume.
+Version-three saves store decisions and replay them from a fresh character, so
 rewards are not added twice. Replay text is hidden: loading resumes at the saved
 choice, or displays the completed adventure's status and achievement.
 Save files are excluded from Git. Progress is not saved automatically.
-Version-one saves are rejected because the new town changes choice order.
+Older saves are rejected because the interactive opening changes choice order.
+The original `saves/adventure.json` is left untouched; play version-two saves
+with the preserved `v0.1.0` release of the game.
 Existing files are not altered by loading. Saving replaces the selected slot.
 
 ## Game scope
@@ -57,8 +59,12 @@ with a saved playthrough, not collected globally across separate new games.
 
 The guild, an explorable town, the bridge and the castle; two companions,
 three endings and optional kindness callbacks.
-The initial guild choices all lead to the pan delivery; bridge choices change
-gold and the pan's condition, which determine the ending. The duel is a single
+At the guild, optionally inspect your contract and pockets, ask about the parcel,
+and meet the companions before recruiting one. Ring the bell, accept the parcel,
+then choose a companion to advance. Questions can be skipped or revisited;
+repeating them grants no extra items or money. The delivery remains the main job.
+Bridge choices change gold and the pan's condition; the pan's condition at delivery
+determines the ending. The duel is a single
 choice encounter, not a full combat system. Equipment has specific story effects
 rather than numeric combat statistics:
 

@@ -5,7 +5,8 @@ from pathlib import Path
 
 from hero_on_probation.models import Hero
 
-SAVE_PATH = Path("saves/adventure.json")
+SAVE_PATH = Path("saves/adventure-v3.json")
+SAVE_VERSION = 3
 
 
 class Restart(Exception):
@@ -56,15 +57,17 @@ class Session:
             SAVE_PATH.parent.mkdir(parents=True, exist_ok=True)
             temporary = SAVE_PATH.with_suffix(".tmp")
             temporary.write_text(
-                json.dumps({"version": 2, "choices": self.history}), encoding="utf-8"
+                json.dumps({"version": SAVE_VERSION, "choices": self.history}),
+                encoding="utf-8",
             )
             temporary.replace(SAVE_PATH)
             print(f"Saved at this choice to {SAVE_PATH} (replaces the previous slot).")
         elif text == "load":
             data = json.loads(SAVE_PATH.read_text(encoding="utf-8"))
-            if not isinstance(data, dict) or data.get("version") != 2:
+            if not isinstance(data, dict) or data.get("version") != SAVE_VERSION:
                 raise ValueError(
-                    "This chapter requires a version-2 save. Older saves cannot be replayed safely."
+                    "The interactive opening requires a version-3 save. "
+                    "Start a new game; use v0.1.0 to play older saves."
                 )
             choices = data.get("choices")
             if not isinstance(choices, list) or not all(
