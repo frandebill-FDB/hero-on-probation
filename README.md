@@ -114,5 +114,5 @@ hero = Hero()
 print(hero.gold)
 ```
 
-Development provenance is documented in [the development log](docs/development-log.md).
+Design decisions and development notes are in [the development log](docs/development-log.md).
 Outstanding release checks are in [the submission checklist](docs/submission-checklist.md).
