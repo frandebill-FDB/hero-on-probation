@@ -102,6 +102,32 @@ class CharacterTests(unittest.TestCase):
         self.assertEqual(game.session.history, [3])
         self.assertEqual(saves.read_save(other.save_id).choices, [3, 5])
 
+    def test_mid_story_save_survives_quitting_and_loading_from_start_menu(self):
+        self.run_menu(
+            [
+                "1",
+                "Mira",
+                "3",
+                "4",
+                "3",
+                "1",
+                "1",
+                "save",
+                "quit",
+            ]
+        )
+        slot = saves.list_saves()[0]
+        self.assertEqual(slot.choices, [3, 4, 3, 1, 1])
+        text = self.run_menu(["2", "1", "quit"])
+        self.assertEqual(game.session.history, slot.choices)
+        self.assertEqual(game.session.hero.name, "Mira")
+        self.assertEqual(game.session.hero.companion, "Pip")
+        self.assertEqual(game.session.hero.achievements, [])
+        self.assertIn("Iron Sword: 5 gold", text)
+        self.assertIn("Commands: save (save here) | load", text)
+        self.assertNotIn("You wake up at a counter", text)
+        self.assertNotIn("ENDING:", text)
+
     def test_return_to_menu_does_not_autosave(self):
         self.run_menu(["1", "Ada", "3", "5", "menu", "2", "1", "quit"])
         self.assertEqual(game.session.hero.name, "Ada")

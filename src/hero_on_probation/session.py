@@ -53,7 +53,10 @@ class Session:
             print("Enter a number to act. Other commands do not advance the story:")
             print("status / bag: gold, companion, equipment and possessions")
             print("quests / journal / achievements: your progress and rewards")
-            print("save / load: replace or restore only this character's slot")
+            print(
+                "save: keep this character at the current choice, throughout the story"
+            )
+            print("load: return to this character's last saved choice or ending")
             print("menu: return to character selection without saving")
             print("quit: exit without saving automatically")
         elif text == "save":

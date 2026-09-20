@@ -53,6 +53,7 @@ def choose(prompt: str, options: list[str]) -> int:
     print(prompt)
     for number, option in enumerate(options, start=1):
         print(f"  {number}. {option}")
+    print("Commands: save (save here) | load | status | bag | help | menu | quit")
     while True:
         answer = input("> ").strip()
         if answer.lower() == "quit":
@@ -68,7 +69,9 @@ def choose(prompt: str, options: list[str]) -> int:
         if answer in [str(number) for number in range(1, len(options) + 1)]:
             session.history.append(int(answer))
             return int(answer)
-        print(f"Enter a number from 1 to {len(options)}, or quit.")
+        print(
+            f"Enter a number from 1 to {len(options)}, or use save / load / help / menu / quit."
+        )
 
 
 def guild(hero: Hero) -> bool:
@@ -110,7 +113,7 @@ def guild(hero: Hero) -> bool:
                 "Who is it for?",
                 "What if it gets damaged?",
                 "Take the parcel and accept the job.",
-                "Decline the job and leave. (End adventure.)",
+                "No thanks. I'm taking the day off.",
             ],
         )
         if action == 4:
@@ -409,8 +412,10 @@ def run_session(initial: Session) -> bool:
                 print("Completed adventure restored.")
                 session.command("status")
                 session.command("achievements")
+            print("Adventure complete. Saving now records this ending.")
+            print("Use load to restore your last save, or menu to select a character.")
             print(
-                "Review status, bag, quests, journal or achievements; save, load, menu or quit."
+                "Commands: status | bag | quests | journal | achievements | save | load | menu | quit"
             )
             while True:
                 command = input("> ").strip().lower()

@@ -30,6 +30,10 @@ not online accounts.
 
 Enter a displayed number to choose, or `quit` to exit. Invalid input is retried.
 At any choice (and after the ending), use `status`, `bag`, `quests`, or `journal`.
+Every story choice displays a command bar. Type `save` at the same `>` prompt
+to save **right there**, before picking the next story option; `load` returns to
+that saved decision. These commands are available throughout the adventure,
+including the guild, shop, side quests and bridge, not only after an ending.
 The inventory tracks quantities, equipped items, the quest pan and its condition.
 Turning your wooden sword into bread removes it from inventory; an equipped
 Iron Sword stays equipped.
@@ -76,7 +80,11 @@ Do not add more locations
 or a long combat grind. Aim for short dialogue beats followed by a decision;
 humour should come from choices and their consequences.
 
-Each ending unlocks a different achievement:
+Each ending unlocks a different achievement. The option text does not announce
+which choices end the adventure; discoveries are part of the joke.
+
+<details>
+<summary>Ending and achievement reference (spoilers)</summary>
 
 | Ending | Achievement |
 | --- | --- |
@@ -84,6 +92,8 @@ Each ending unlocks a different achievement:
 | Dish Duty | LORD OF THE RINSE — came for gold, stayed for grease |
 | Accidental Catering | BREADWINNER — delivered edible cookware |
 | Clocked Out | ANY% HERO — skipped the quest and the unpaid lunch break |
+
+</details>
 
 Use `achievements` to review the current playthrough's unlocks. They are restored
 with a saved playthrough, not collected globally across separate new games.
@@ -94,11 +104,9 @@ At the guild, optionally inspect your contract and pockets, ask about the parcel
 and meet the companions before recruiting one. Ring the bell, accept the parcel,
 then choose a companion to advance. Questions can be skipped or revisited;
 repeating them grants no extra items or money. The delivery remains the main job.
-Alternatively, choose **5. Decline the job and leave** at the parcel menu for the
-short **Clocked Out** ending. This ends the adventure with your original 3 gold,
-no companion, no accepted delivery and the **ANY% HERO** achievement. Review
-commands and save/load still work afterward. Use `menu` and create another
-character to try a delivery route without overwriting the completed character.
+Review commands and save/load still work after an ending. Saving then records
+the completed result, not an earlier checkpoint. Use `load` for the last saved
+decision or `menu` to select/create a different character.
 Bridge choices change gold and the pan's condition; the pan's condition at delivery
 determines the ending. The duel is a single
 choice encounter, not a full combat system. Equipment has specific story effects
@@ -146,4 +154,5 @@ print(hero.gold)
 ```
 
 Design decisions and development notes are in [the development log](docs/development-log.md).
+Original playtesting requests and follow-up status are in [the feedback record](docs/feedback.md).
 Outstanding release checks are in [the submission checklist](docs/submission-checklist.md).

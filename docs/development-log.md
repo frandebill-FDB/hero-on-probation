@@ -1,7 +1,8 @@
 # Development log
 
 I use this log to explain what I wanted from the game, what I noticed during
-playtesting, and how the project changed in response. The early-development
+playtesting, and how the project changed in response. My original wording and
+follow-up status are kept in [the feedback record](feedback.md). The early-development
 section was added retrospectively on 2026-09-20 from project discussions and
 the first code snapshot; its individual development dates are not confirmed.
 The dated implementation entries refer to actual Git commits. Test results
@@ -117,7 +118,8 @@ for this revision was not confirmed in this entry.
 
 ## 2026-09-20 — Named characters and save management
 
-Git record: `Add named characters and recoverable save management`.
+Git record: `6b5b1d8` — `Add named characters and recoverable save management`.
+Original feedback: [FB-003](feedback.md#fb-003--create-a-character-and-manage-that-characters-save).
 
 **What I noticed:** The game had no character creation. The single unnamed save
 did not feel connected to a player, and there was no way to delete a save in-game.
@@ -145,16 +147,41 @@ require the preserved initial game.
 separate character progress, duplicate/invalid names, cancelled and confirmed
 deletion, recovery-copy contents, save-write failure and old-save import. Ruff
 lint and format checks passed. The CI module-entry smoke test now creates a
-character, reaches an ending, saves and reloads. Its remote result is a separate
-check, not implied by the local tests.
+character, reaches an ending, saves and reloads. The subsequent
+[Ubuntu CI run for this revision](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/35508428305)
+passed; that result does not cover future changes.
 An actual module launch in an isolated temporary directory also exercised two
 characters, a completed ending, save/load, cancelled deletion and confirmed
 recoverable deletion. No existing player saves were used or changed by that check.
 
+## 2026-09-20 — Mid-story save controls and a less obvious Easter egg
+
+Git record: `Expose mid-story save controls and hide refusal spoilers`.
+Original feedback: [FB-004](feedback.md#fb-004--make-mid-story-saving-visible-and-keep-the-early-ending-a-surprise).
+
+**What I noticed:** The interface made it look as though saving was only
+available at the end of the game. Also, the refusal option announced that it
+would end the adventure, which spoiled the surprise I wanted from a speedrun
+Easter egg.
+
+**What changed:** Every story choice now displays a compact `save` / `load`
+command bar. Saving was already supported at those prompts; the improvement
+makes that existing behaviour visible. The ending separately explains that
+saving there keeps the completed result, while loading returns to the last save.
+The refusal option is now a normal line of dialogue without an ending label.
+The README's ending reference is also collapsed behind a spoiler heading.
+
+**Verification:** 41 local tests and Ruff checks passed. A new regression test
+saves in the shop, exits, starts the menu again and restores the same character
+at the same unfinished decision. Other new checks verify visible save controls
+and that the early ending is not disclosed before selection. No story choice
+numbers or save format changed. Remote CI for this revision is a separate check.
+
 ## Next steps
 
-I want to try creating two characters and switching between their saved games,
-then check the deletion confirmation and old-save import. I also want to work
+I want to check whether the mid-story save controls are now clear and whether
+the early ending feels like a discovery. Character switching, deletion and
+old-save import remain part of further playtesting. I also want to work
 through the character state, branching, save replay
 and tests so that I can understand and explain the implementation. Further
 changes should address specific playtesting feedback rather than just add length.

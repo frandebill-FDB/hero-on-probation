@@ -14,6 +14,55 @@ from hero_on_probation.town import ghost, rats, shop
 
 
 class AdventureTests(unittest.TestCase):
+    def test_save_command_is_visible_at_story_choices_and_does_not_advance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = StringIO()
+            game.session = session.Session(Hero(name="Mira"), save_id="a" * 32)
+            with (
+                patch.object(saves, "SAVE_DIR", Path(directory)),
+                patch("builtins.input", side_effect=["save", "1"]),
+                redirect_stdout(output),
+            ):
+                answer = game.choose(
+                    "A decision in the middle of the story", ["Continue"]
+                )
+                saved = saves.read_save(game.session.save_id)
+            self.assertEqual(answer, 1)
+            self.assertEqual(saved.choices, [])
+            self.assertEqual(game.session.history, [1])
+            self.assertIn("Commands: save (save here) | load", output.getvalue())
+            self.assertLess(
+                output.getvalue().index("Commands:"),
+                output.getvalue().index("Saved Mira"),
+            )
+
+    def test_refusal_option_does_not_reveal_ending_before_selection(self):
+        output = StringIO()
+        with (
+            patch("builtins.input", side_effect=["3", "quit"]),
+            redirect_stdout(output),
+        ):
+            self.play_game()
+        text = output.getvalue()
+        self.assertIn("5. No thanks. I'm taking the day off.", text)
+        for spoiler in ("End adventure", "CLOCKED OUT", "ANY% HERO", "speedrun"):
+            self.assertNotIn(spoiler, text)
+        self.assertEqual(text.count("Commands: save (save here) | load"), 2)
+
+    def test_ending_explains_difference_between_saving_result_and_loading_checkpoint(
+        self,
+    ):
+        output = StringIO()
+        with (
+            patch("builtins.input", side_effect=["3", "5", "quit"]),
+            redirect_stdout(output),
+        ):
+            self.play_game()
+        self.assertIn(
+            "Adventure complete. Saving now records this ending.", output.getvalue()
+        )
+        self.assertIn("Use load to restore your last save", output.getvalue())
+
     def play_game(self):
         """Exercise the story with a selected character; menus have separate tests."""
         game.run_session(session.Session(Hero(name="Tester"), save_id="a" * 32))
