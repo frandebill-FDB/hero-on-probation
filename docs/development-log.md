@@ -187,6 +187,14 @@ I liked the proposed initial rules and suggested that Pip could turn the enemy
 into bread to bypass the fight. [FB-006](feedback.md#fb-006--let-pip-turn-an-enemy-into-bread-to-bypass-combat)
 preserves that request, and [the combat design](combat-design.md) separates the
 working rules from implementation and test results that are still pending.
+I then suggested that the spell also turn the quest pan into bread as a drawback.
+[FB-007](feedback.md#fb-007--bread-magic-also-transforms-the-quest-pan) records this
+revision. The combat design now links the shortcut to the existing bread-pan
+delivery ending; the new combat action itself has not been implemented yet.
+I also proposed a final-boss bread transformation when Pip is present and I
+insist on fighting. [FB-008](feedback.md#fb-008--pip-can-turn-the-final-boss-into-bread)
+records that extension. The dragon's relationship to the existing Demon King
+and the final outcome still need to be decided before implementation.
 
 I want to check whether the mid-story save controls are now clear and whether
 the early ending feels like a discovery. Character switching, deletion and

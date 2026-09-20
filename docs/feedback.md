@@ -142,8 +142,8 @@ bypass the normal fight.
 Pip's companion action transforms the bridge slime and ends combat immediately,
 without an enemy counterattack. It does not require reducing the enemy to low
 health first. The pre-action menu does not label this an instant-win shortcut.
-The quest pan remains unchanged, so this is distinct from the existing route
-where Pip transforms the pan and changes the delivery ending.
+The initial proposal left the quest pan unchanged. That part was superseded by
+FB-007 below, which explicitly adds the pan's transformation as the drawback.
 
 **Status:** Design recorded, not yet implemented or tested. The exact action
 wording, achievement and aftermath are proposals in
@@ -152,3 +152,47 @@ wording, achievement and aftermath are proposals in
 **Follow-up to FB-005:** The normal combat rules and this shortcut will be
 implemented in small steps, with replay-save compatibility handled before the
 new fight is connected to the existing story.
+
+## FB-007 — Bread magic also transforms the quest pan
+
+Recorded: 2026-09-20.
+
+**My original feedback:**
+
+> 可以把任务锅也变成面包，算是负面效果
+
+**Requested outcome:** I wanted a drawback for Pip's combat shortcut: the quest
+pan should also turn into bread when the enemy does.
+
+**Updated design:** The spell ends the fight immediately but sets the pan to
+`bread`. The player continues the story and, on delivery, reaches the existing
+ACCIDENTAL CATERING ending. Repair kits cannot undo this transformation. The
+current bread ending still pays five gold, so the cost is losing the intact-pan
+outcome, not an additional financial penalty. No other equipment is transformed.
+
+**Status:** Recorded in the combat design; not implemented or tested yet. This
+refines FB-006 rather than replacing its original quoted request.
+
+## FB-008 — Pip can turn the final boss into bread
+
+Recorded: 2026-09-20.
+
+**My original feedback:**
+
+> 最后带上Pip的情况下 坚持和恶龙战斗可以把boss也变成面包
+
+**Requested outcome:** I wanted the bread-magic shortcut to work at the final
+boss too, when Pip accompanies the hero and the player insists on fighting.
+
+**Design implications:** This adds a final confrontation beyond the currently
+implemented delivery scene. The option should not disclose its bread outcome
+before the player discovers it. The exact battle trigger, aftermath and
+achievement are still to be designed.
+
+**Open question:** The current destination character is the Demon King, whereas
+this feedback names a dragon. Whether the dragon replaces the Demon King, is the
+Demon King's form, or is a separate character is not yet decided.
+
+**Status:** Design request recorded. No final-boss fight or transformation has
+been implemented. This extends the combat proposal and does not silently replace
+the existing delivery endings.
