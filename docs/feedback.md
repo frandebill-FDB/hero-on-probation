@@ -125,3 +125,30 @@ version existing replay saves, and define victory, defeat and retreat outcomes.
 
 **Status:** Open. This entry records the missing feature and a proposal; no
 combat implementation or combat test result is being claimed.
+
+## FB-006 — Let Pip turn an enemy into bread to bypass combat
+
+Recorded: 2026-09-20.
+
+**My original feedback:**
+
+> 我觉得你的处事规则就很好，我建议的是弄一个邪修，那个能把任何物品变成面包的伙伴能把敌人变成面包来逃课
+
+**Requested outcome:** I liked the proposed initial combat rules and wanted an
+unconventional shortcut: Pip should be able to turn the enemy into bread and
+bypass the normal fight.
+
+**Working design:** Keep the proposed short, deterministic turn-based encounter.
+Pip's companion action transforms the bridge slime and ends combat immediately,
+without an enemy counterattack. It does not require reducing the enemy to low
+health first. The pre-action menu does not label this an instant-win shortcut.
+The quest pan remains unchanged, so this is distinct from the existing route
+where Pip transforms the pan and changes the delivery ending.
+
+**Status:** Design recorded, not yet implemented or tested. The exact action
+wording, achievement and aftermath are proposals in
+[the combat design](combat-design.md), not completed features.
+
+**Follow-up to FB-005:** The normal combat rules and this shortcut will be
+implemented in small steps, with replay-save compatibility handled before the
+new fight is connected to the existing story.

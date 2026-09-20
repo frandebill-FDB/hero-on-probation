@@ -183,6 +183,10 @@ I have also identified the lack of a real combat system. The current bridge
 duel is only a story choice; [FB-005](feedback.md#fb-005--no-real-combat-system)
 records this open issue and a proposed small turn-based encounter. Its design,
 save compatibility and implementation are still pending.
+I liked the proposed initial rules and suggested that Pip could turn the enemy
+into bread to bypass the fight. [FB-006](feedback.md#fb-006--let-pip-turn-an-enemy-into-bread-to-bypass-combat)
+preserves that request, and [the combat design](combat-design.md) separates the
+working rules from implementation and test results that are still pending.
 
 I want to check whether the mid-story save controls are now clear and whether
 the early ending feels like a discovery. Character switching, deletion and
