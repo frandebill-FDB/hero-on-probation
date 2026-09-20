@@ -101,3 +101,27 @@ The choices, ending trigger and version-four save format remain unchanged.
 command visibility, saving without advancing the story, resuming at the shop
 after quitting and relaunching, and withholding the Easter egg result until the
 choice is made. Further playtesting feedback remains open.
+
+## FB-005 — No real combat system
+
+Recorded: 2026-09-20.
+
+**My original feedback:**
+
+> 然后整个游戏没有战斗系统
+
+**Observation:** I noticed that the game does not provide an actual combat system.
+
+**Code review:** The bridge duel is a single-choice story event. It checks the
+equipped item and changes the pan or gold, but there are no player/enemy health
+values, combat turns, enemy actions or damage calculations. Equipment currently
+affects story outcomes rather than combat statistics.
+
+**Design proposal, not yet implemented:** Upgrade the existing bridge encounter
+to a short optional turn-based fight with visible health, weapon and shield
+effects, a companion action and retreat. Keep the existing non-combat crossing
+routes. Before changing the decision sequence, determine how to preserve or
+version existing replay saves, and define victory, defeat and retreat outcomes.
+
+**Status:** Open. This entry records the missing feature and a proposal; no
+combat implementation or combat test result is being claimed.

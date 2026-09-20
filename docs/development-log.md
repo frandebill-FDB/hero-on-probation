@@ -179,6 +179,11 @@ numbers or save format changed. Remote CI for this revision is a separate check.
 
 ## Next steps
 
+I have also identified the lack of a real combat system. The current bridge
+duel is only a story choice; [FB-005](feedback.md#fb-005--no-real-combat-system)
+records this open issue and a proposed small turn-based encounter. Its design,
+save compatibility and implementation are still pending.
+
 I want to check whether the mid-story save controls are now clear and whether
 the early ending feels like a discovery. Character switching, deletion and
 old-save import remain part of further playtesting. I also want to work
