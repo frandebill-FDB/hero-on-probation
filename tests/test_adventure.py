@@ -8,12 +8,16 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-from hero_on_probation import game, session
+from hero_on_probation import game, saves, session
 from hero_on_probation.models import Hero
 from hero_on_probation.town import ghost, rats, shop
 
 
 class AdventureTests(unittest.TestCase):
+    def play_game(self):
+        """Exercise the story with a selected character; menus have separate tests."""
+        game.run_session(session.Session(Hero(name="Tester"), save_id="a" * 32))
+
     def test_declining_finishes_without_accepting_or_starting_later_scenes(self):
         for decisions in ([3, 5], [1, 2, 3, 1, 2, 3, 5]):
             with self.subTest(decisions=decisions):
@@ -29,7 +33,7 @@ class AdventureTests(unittest.TestCase):
                     patch.object(game, "arrival") as arrival,
                     redirect_stdout(output),
                 ):
-                    game.main()
+                    self.play_game()
                 for scene in (companions, town, bridge, arrival):
                     scene.assert_not_called()
                 hero = game.session.hero
@@ -57,15 +61,20 @@ class AdventureTests(unittest.TestCase):
             "quit",
         ]
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "save.json"
+            path = Path(directory) / f"{'a' * 32}.json"
             with (
-                patch.object(session, "SAVE_PATH", path),
+                patch.object(saves, "SAVE_DIR", Path(directory)),
                 patch("builtins.input", side_effect=commands),
                 redirect_stdout(output),
             ):
-                game.main()
+                self.play_game()
             self.assertEqual(
-                json.loads(path.read_text()), {"version": 3, "choices": [3, 5]}
+                json.loads(path.read_text()),
+                {
+                    "version": 4,
+                    "character": {"id": "a" * 32, "name": "Tester"},
+                    "choices": [3, 5],
+                },
             )
         self.assertEqual(game.session.hero.gold, 3)
         self.assertEqual(game.session.hero.achievements, ["ANY% HERO"])
@@ -99,7 +108,7 @@ class AdventureTests(unittest.TestCase):
                     patch("builtins.input", side_effect=commands),
                     redirect_stdout(StringIO()),
                 ):
-                    game.main()
+                    self.play_game()
                 self.assertEqual(game.session.hero.achievements, [achievement])
                 self.assertEqual(game.session.hero.gold, gold)
 
@@ -107,14 +116,14 @@ class AdventureTests(unittest.TestCase):
         output = StringIO()
         with tempfile.TemporaryDirectory() as directory:
             with (
-                patch.object(session, "SAVE_PATH", Path(directory) / "save.json"),
+                patch.object(saves, "SAVE_DIR", Path(directory)),
                 patch(
                     "builtins.input",
                     side_effect=["3", "4", "3", "2", "save", "load", "quit"],
                 ),
                 redirect_stdout(output),
             ):
-                game.main()
+                self.play_game()
         text = output.getvalue()
         self.assertEqual(text.count("You wake up at a counter."), 1)
         self.assertEqual(text.count("Visit the equipment shop."), 2)
@@ -149,13 +158,11 @@ class AdventureTests(unittest.TestCase):
                 commands = [str(n) for n in decisions] + ["save", "load", "quit"]
                 with tempfile.TemporaryDirectory() as directory:
                     with (
-                        patch.object(
-                            session, "SAVE_PATH", Path(directory) / "save.json"
-                        ),
+                        patch.object(saves, "SAVE_DIR", Path(directory)),
                         patch("builtins.input", side_effect=commands),
                         redirect_stdout(output),
                     ):
-                        game.main()
+                        self.play_game()
                 self.assertEqual(game.session.history, decisions)
                 self.assertEqual(game.session.hero.gold, 3)
                 restored = output.getvalue().split("Save loaded.", 1)[1]
@@ -169,11 +176,11 @@ class AdventureTests(unittest.TestCase):
         hero = Hero(gold=42)
         current = session.Session(hero)
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "old.json"
+            path = Path(directory) / f"{current.save_id}.json"
             old_save = json.dumps({"version": 2, "choices": [3, 1]})
             path.write_text(old_save, encoding="utf-8")
-            with patch.object(session, "SAVE_PATH", path):
-                with self.assertRaisesRegex(ValueError, "version-3"):
+            with patch.object(saves, "SAVE_DIR", Path(directory)):
+                with self.assertRaisesRegex(ValueError, "version-4"):
                     current.command("load")
             self.assertEqual(path.read_text(encoding="utf-8"), old_save)
         self.assertEqual(hero.gold, 42)
@@ -259,27 +266,27 @@ class AdventureTests(unittest.TestCase):
         commands = [str(n) for n in [3, 4, 3, 1, 2, 1, 3, 2, 4, 5, 2]]
         commands += ["save", "load", "quit"]
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "adventure.json"
+            path = Path(directory) / f"{'a' * 32}.json"
             with (
-                patch.object(session, "SAVE_PATH", path),
+                patch.object(saves, "SAVE_DIR", Path(directory)),
                 patch("builtins.input", side_effect=commands),
                 redirect_stdout(StringIO()),
             ):
-                game.main()
+                self.play_game()
             self.assertEqual(game.session.hero.gold, 17)
             self.assertEqual(game.session.hero.achievements, ["DELIVERY HERO"])
             self.assertEqual(game.session.hero.quests["Return the pan"], "Done")
-            self.assertEqual(json.loads(path.read_text())["version"], 3)
+            self.assertEqual(json.loads(path.read_text())["version"], 4)
 
     def test_save_at_nested_shop_choice(self):
         commands = ["3", "4", "3", "2", "1", "save", "load", "quit"]
         with tempfile.TemporaryDirectory() as directory:
             with (
-                patch.object(session, "SAVE_PATH", Path(directory) / "save.json"),
+                patch.object(saves, "SAVE_DIR", Path(directory)),
                 patch("builtins.input", side_effect=commands),
                 redirect_stdout(StringIO()),
             ):
-                game.main()
+                self.play_game()
             self.assertEqual(game.session.history, [3, 4, 3, 2, 1])
             self.assertEqual(game.session.hero.gold, 3)
 

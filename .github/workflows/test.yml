@@ -16,7 +16,7 @@ jobs:
       - name: Unit tests
         run: uv run --no-sync python -m unittest discover -s tests -v
       - name: Module entry point
-        run: printf 'quit\n' | uv run --no-sync -m hero_on_probation
+        run: printf '1\nCI Hero\n3\n5\nsave\nmenu\n2\n1\nquit\n' | uv run --no-sync -m hero_on_probation
       - name: Code style
         run: |
           uvx ruff check .

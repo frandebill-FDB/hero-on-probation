@@ -23,21 +23,50 @@ uv run -m hero_on_probation
 All commands work in a text terminal; no GUI, network service or external data
 is needed during play. Run commands from the project root so saves use the
 same location each time.
+Start by creating a named character or loading an existing character from the menu.
+Character creation currently sets the hero's name, not a class or a stat build;
+everyone starts with the same equipment and 3 gold. These are local characters,
+not online accounts.
+
 Enter a displayed number to choose, or `quit` to exit. Invalid input is retried.
 At any choice (and after the ending), use `status`, `bag`, `quests`, or `journal`.
 The inventory tracks quantities, equipped items, the quest pan and its condition.
 Turning your wooden sword into bread removes it from inventory; an equipped
 Iron Sword stays equipped.
 
-Use `save` to replace the local slot `saves/adventure-v3.json`, and `load` to resume.
-Version-three saves store decisions and replay them from a fresh character, so
-rewards are not added twice. Replay text is hidden: loading resumes at the saved
-choice, or displays the completed adventure's status and achievement.
-Save files are excluded from Git. Progress is not saved automatically.
-Older saves are rejected because the interactive opening changes choice order.
-The original `saves/adventure.json` is left untouched; play version-two saves
-with the preserved `v0.1.0` release of the game.
-Existing files are not altered by loading. Saving replaces the selected slot.
+## Characters and saves
+
+The opening menu offers:
+
+1. **Create a character:** enter a printable name of 1-24 characters (0 cancels).
+   Existing names are checked without case sensitivity to prevent accidental
+   duplicates. A new character's starting progress is saved immediately.
+2. **Load a character's save:** pick a name from the list to resume that character.
+3. **Delete a character's save:** select a name, then type `DELETE` to confirm.
+   Anything else cancels. The file is moved to `saves/deleted/`, not permanently
+   erased, and disappears from the active character list. Other saves are untouched.
+4. **Import the old version-3 save:** give the progress in `saves/adventure-v3.json`
+   a new character name. The original file is preserved, and the imported game
+   resumes at its saved choice or ending.
+5. **Quit.**
+
+During play, `save` replaces only the current character's slot and `load` restores
+that same character. Use `menu` to change characters, create another or delete a
+save. **Later progress is not autosaved:** use `save` before `menu` or `quit`.
+
+Version-four files live at `saves/<generated-id>.json` and contain character
+identity plus decisions. Names are never used as filenames. Loading replays the
+decisions from a fresh hero with the saved name, without doubling rewards or
+printing previous story text. Loading does not modify the file. Saves, including
+deleted copies, are local and excluded from Git.
+
+To recover a deleted save manually, first quit the game. The deletion message
+shows the backup path; its JSON contains the original ID at `character.id`.
+Copy that file back to `saves/<original-id>.json` without replacing an existing
+file. Avoid restoring beside a newly created character with the same name.
+
+Version-two `saves/adventure.json` files cannot be imported because the opening
+changed; use the preserved `v0.1.0` game to play those files. They are left untouched.
 
 ## Game scope
 
@@ -68,9 +97,8 @@ repeating them grants no extra items or money. The delivery remains the main job
 Alternatively, choose **5. Decline the job and leave** at the parcel menu for the
 short **Clocked Out** ending. This ends the adventure with your original 3 gold,
 no companion, no accepted delivery and the **ANY% HERO** achievement. Review
-commands and save/load still work afterward. Restart the program without loading
-that ending to play a delivery route. Existing version-three saves remain
-compatible: the new choice is appended without renumbering the original options.
+commands and save/load still work afterward. Use `menu` and create another
+character to try a delivery route without overwriting the completed character.
 Bridge choices change gold and the pan's condition; the pan's condition at delivery
 determines the ending. The duel is a single
 choice encounter, not a full combat system. Equipment has specific story effects
@@ -98,11 +126,14 @@ uv run python -m unittest discover -s tests -v
 - `game.py`: numbered input, main scenes and ending achievements.
 - `town.py`: optional errands and purchases.
 - `session.py`: information commands, validated JSON saves and replay.
+- `menu.py`: character creation, selection, old-save import and deletion confirmation.
+- `saves.py`: versioned character files, atomic writes and recoverable deletion.
 - `tests/test_adventure.py`: rewards, purchases, endings and save regression tests.
+- `tests/test_characters.py`: character identity, isolated saves, import and deletion.
 
 The game deliberately uses a short, deterministic choice-based duel rather than
-a full combat engine. Achievements belong to one playthrough. There is one save
-slot and no autosave. Story changes can require a new save version, because
+a full combat engine. Achievements belong to one character's playthrough. There
+is one slot per character and no ongoing autosave. Story changes can require a new save version, because
 saves replay decisions rather than storing a snapshot of the call stack.
 
 The public API exposes `Hero`, for example:
@@ -110,7 +141,7 @@ The public API exposes `Hero`, for example:
 ```python
 from hero_on_probation import Hero
 
-hero = Hero()
+hero = Hero(name="Mira")
 print(hero.gold)
 ```
 

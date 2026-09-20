@@ -20,3 +20,4 @@ class Hero:
     quests: dict[str, str] = field(default_factory=dict)
     journal: list[str] = field(default_factory=list)
     achievements: list[str] = field(default_factory=list)
+    name: str = "Hero"

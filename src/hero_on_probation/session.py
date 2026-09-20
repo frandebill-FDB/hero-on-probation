@@ -1,26 +1,26 @@
 """Commands and deterministic replay saves for the short adventure."""
 
-import json
-from pathlib import Path
+from uuid import uuid4
 
+from hero_on_probation import saves
 from hero_on_probation.models import Hero
-
-SAVE_PATH = Path("saves/adventure-v3.json")
-SAVE_VERSION = 3
 
 
 class Restart(Exception):
     """Restart the adventure using a validated sequence of past decisions."""
 
-    def __init__(self, decisions: list[int]):
-        self.decisions = decisions
+    def __init__(self, restored: "Session"):
+        self.session = restored
 
 
 class Session:
     """Save choices and reconstruct state without duplicating rewards."""
 
-    def __init__(self, hero: Hero, replay: list[int] | None = None):
+    def __init__(
+        self, hero: Hero, replay: list[int] | None = None, save_id: str | None = None
+    ):
         self.hero = hero
+        self.save_id = save_id or uuid4().hex
         self.history: list[int] = []
         self.replay = list(replay or [])
         self.validating = False
@@ -30,7 +30,9 @@ class Session:
         """Handle informational commands without advancing the story."""
         hero = self.hero
         if text == "status":
-            print(f"Gold: {hero.gold} | Companion: {hero.companion or 'None'}")
+            print(
+                f"Hero: {hero.name} | Gold: {hero.gold} | Companion: {hero.companion or 'None'}"
+            )
             for slot, item in hero.equipment.items():
                 print(f"{slot}: {item}")
         elif text == "bag":
@@ -51,32 +53,21 @@ class Session:
             print("Enter a number to act. Other commands do not advance the story:")
             print("status / bag: gold, companion, equipment and possessions")
             print("quests / journal / achievements: your progress and rewards")
-            print("save / load: replace or restore the single save slot")
+            print("save / load: replace or restore only this character's slot")
+            print("menu: return to character selection without saving")
             print("quit: exit without saving automatically")
         elif text == "save":
-            SAVE_PATH.parent.mkdir(parents=True, exist_ok=True)
-            temporary = SAVE_PATH.with_suffix(".tmp")
-            temporary.write_text(
-                json.dumps({"version": SAVE_VERSION, "choices": self.history}),
-                encoding="utf-8",
+            path = saves.write_save(
+                saves.SavedGame(self.save_id, hero.name, self.history)
             )
-            temporary.replace(SAVE_PATH)
-            print(f"Saved at this choice to {SAVE_PATH} (replaces the previous slot).")
+            print(
+                f"Saved {hero.name} at this choice to {path} (replaces this character's slot)."
+            )
         elif text == "load":
-            data = json.loads(SAVE_PATH.read_text(encoding="utf-8"))
-            if not isinstance(data, dict) or data.get("version") != SAVE_VERSION:
-                raise ValueError(
-                    "The interactive opening requires a version-3 save. "
-                    "Start a new game; use v0.1.0 to play older saves."
-                )
-            choices = data.get("choices")
-            if not isinstance(choices, list) or not all(
-                type(n) is int and 1 <= n <= 5 for n in choices
-            ):
-                raise ValueError("Invalid saved decisions")
+            saved = saves.read_save(self.save_id)
             # Validate the entire path before discarding the current session.
-            validate_replay(choices)
-            raise Restart(choices)
+            validate_replay(saved.choices)
+            raise Restart(Session(Hero(name=saved.name), saved.choices, saved.save_id))
         else:
             return False
         return True
@@ -89,7 +80,7 @@ def validate_replay(choices: list[int]) -> None:
 
     from hero_on_probation import game
 
-    previous = game.session
+    previous = getattr(game, "session", None)
     trial = Session(Hero(), choices)
     trial.validating = True
     game.session = trial

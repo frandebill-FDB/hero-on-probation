@@ -3,6 +3,7 @@
 import sys
 from contextlib import redirect_stdout
 
+from hero_on_probation.menu import start_menu
 from hero_on_probation.models import Hero
 from hero_on_probation.session import Restart, Session
 from hero_on_probation.town import explore_town
@@ -10,6 +11,10 @@ from hero_on_probation.town import explore_town
 
 class ReplayComplete(Exception):
     """A validation replay has reached its saved decision."""
+
+
+class ReturnToMenu(Exception):
+    """Leave the current in-memory adventure without writing a save."""
 
 
 session: Session
@@ -42,7 +47,8 @@ def choose(prompt: str, options: list[str]) -> int:
         raise ReplayComplete
     session.restoring = False
     print(
-        f"\n[Gold: {session.hero.gold} | Companion: {session.hero.companion or 'Solo'}]"
+        f"\n[Hero: {session.hero.name} | Gold: {session.hero.gold} | "
+        f"Companion: {session.hero.companion or 'Solo'}]"
     )
     print(prompt)
     for number, option in enumerate(options, start=1):
@@ -51,6 +57,8 @@ def choose(prompt: str, options: list[str]) -> int:
         answer = input("> ").strip()
         if answer.lower() == "quit":
             raise EOFError
+        if answer.lower() == "menu":
+            raise ReturnToMenu
         try:
             if session.command(answer.lower()):
                 continue
@@ -66,6 +74,7 @@ def choose(prompt: str, options: list[str]) -> int:
 def guild(hero: Hero) -> bool:
     """Return whether the player accepts the delivery and recruits a companion."""
     print("\nHERO ON PROBATION")
+    print(f"Hero registration: {hero.name}. Job title: temporary hero.")
     print('You wake up at a counter. Your sleeve is stamped "TEMPORARY".')
     seen: set[int] = set()
     while True:
@@ -382,42 +391,60 @@ def play_adventure(hero: Hero) -> None:
         arrival(hero)
 
 
-def main() -> None:
-    """Play one adventure; allow graceful exit at any choice."""
+def run_session(initial: Session) -> bool:
+    """Play a selected character; return True to reopen character selection."""
     global session
+    session = initial
     print(
-        "Use numbers, or status / bag / quests / journal / achievements / save / load / quit."
+        "Use numbers, or status / bag / quests / journal / achievements / save / load / menu / quit."
     )
-    print("One save slot: saves/adventure-v3.json. Saving replaces that slot.")
-    replay = None
+    print(f"Playing as {session.hero.name}. Saving affects only this character.")
+    print("Use save before menu or quit to keep your latest progress.")
     while True:
-        hero = Hero()
-        session = Session(hero, replay)
         try:
             with redirect_stdout(ReplayOutput(sys.stdout)):
-                play_adventure(hero)
+                play_adventure(session.hero)
             if session.restoring:
                 session.restoring = False
                 print("Completed adventure restored.")
                 session.command("status")
                 session.command("achievements")
             print(
-                "Review status, bag, quests, journal or achievements; save, load or quit."
+                "Review status, bag, quests, journal or achievements; save, load, menu or quit."
             )
             while True:
                 command = input("> ").strip().lower()
                 if command == "quit":
                     raise EOFError
+                if command == "menu":
+                    raise ReturnToMenu
                 try:
                     if not session.command(command):
                         print(
-                            "Use status, bag, quests, journal, achievements, save, load or quit."
+                            "Use status, bag, quests, journal, achievements, save, load, menu or quit."
                         )
                 except (OSError, ValueError) as error:
                     print(f"Cannot complete command: {error}")
         except Restart as restart:
-            replay = restart.decisions
+            session = restart.session
             print("Save loaded. Returning to your decision...")
+        except ReturnToMenu:
+            print("Returning to character selection. Unsaved progress is not kept.")
+            return True
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye! Only progress saved with save will be kept.")
-            return
+            return False
+
+
+def main() -> None:
+    """Select a named character before entering or restoring the adventure."""
+    try:
+        while True:
+            selected = start_menu()
+            if selected is None:
+                print("Goodbye!")
+                return
+            if not run_session(selected):
+                return
+    except (EOFError, KeyboardInterrupt):
+        print("\nGoodbye! No additional progress was saved.")

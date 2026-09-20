@@ -115,10 +115,47 @@ duplicate achievements, review commands and rejection of decisions after the
 ending. The original delivery routes still pass, as do Ruff checks. Remote CI
 for this revision was not confirmed in this entry.
 
+## 2026-09-20 — Named characters and save management
+
+Git record: `Add named characters and recoverable save management`.
+
+**What I noticed:** The game had no character creation. The single unnamed save
+did not feel connected to a player, and there was no way to delete a save in-game.
+
+**What I wanted:** Create a character before playing, associate saved progress
+with that character, and offer a way to delete unwanted saves.
+
+**What changed:** A start menu now offers creation, loading, deletion and import
+of old version-three progress. Each named character has a separate save, and the
+name appears in story menus and status. Duplicate active names are rejected.
+The `menu` command returns to character selection without saving new progress.
+Creating a character writes a starting save; later progress still needs `save`.
+Character creation is deliberately limited to naming, without adding classes,
+stats or more story content in this iteration.
+
+**Technical notes:** Version-four saves contain a generated ID, a display name
+and replay choices. Display names are not file paths. Writes replace only the
+current character's slot atomically. Import validates version-three progress
+before creating a named copy and leaves the source file unchanged. Deletion
+requires typing `DELETE` and moves the selected file to `saves/deleted/`, making
+it recoverable without affecting other characters. Old version-two saves still
+require the preserved initial game.
+
+**Verification:** 37 local tests passed, including the original story regressions,
+separate character progress, duplicate/invalid names, cancelled and confirmed
+deletion, recovery-copy contents, save-write failure and old-save import. Ruff
+lint and format checks passed. The CI module-entry smoke test now creates a
+character, reaches an ending, saves and reloads. Its remote result is a separate
+check, not implied by the local tests.
+An actual module launch in an isolated temporary directory also exercised two
+characters, a completed ending, save/load, cancelled deletion and confirmed
+recoverable deletion. No existing player saves were used or changed by that check.
+
 ## Next steps
 
-I want to check whether the new opening and refusal ending feel clear and natural
-to play. I also want to work through the character state, branching, save replay
+I want to try creating two characters and switching between their saved games,
+then check the deletion confirmation and old-save import. I also want to work
+through the character state, branching, save replay
 and tests so that I can understand and explain the implementation. Further
 changes should address specific playtesting feedback rather than just add length.
 
