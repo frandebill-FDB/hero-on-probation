@@ -17,10 +17,15 @@ class Session:
     """Save choices and reconstruct state without duplicating rewards."""
 
     def __init__(
-        self, hero: Hero, replay: list[int] | None = None, save_id: str | None = None
+        self,
+        hero: Hero,
+        replay: list[int] | None = None,
+        save_id: str | None = None,
+        rules_version: int = saves.CURRENT_RULES,
     ):
         self.hero = hero
         self.save_id = save_id or uuid4().hex
+        self.rules_version = rules_version
         self.history: list[int] = []
         self.replay = list(replay or [])
         self.validating = False
@@ -35,6 +40,9 @@ class Session:
             )
             for slot, item in hero.equipment.items():
                 print(f"{slot}: {item}")
+            print(f"HP: {hero.hp}/{hero.max_hp}")
+            if hero.ending:
+                print(f"Ending: {hero.ending}")
         elif text == "bag":
             for item, count in hero.inventory.items():
                 print(f"{item} x{count}")
@@ -53,6 +61,7 @@ class Session:
             print("Enter a number to act. Other commands do not advance the story:")
             print("status / bag: gold, companion, equipment and possessions")
             print("quests / journal / achievements: your progress and rewards")
+            print("back / Enter: redisplay the current choices; does not undo actions")
             print(
                 "save: keep this character at the current choice, throughout the story"
             )
@@ -61,7 +70,9 @@ class Session:
             print("quit: exit without saving automatically")
         elif text == "save":
             path = saves.write_save(
-                saves.SavedGame(self.save_id, hero.name, self.history)
+                saves.SavedGame(
+                    self.save_id, hero.name, self.history, self.rules_version
+                )
             )
             print(
                 f"Saved {hero.name} at this choice to {path} (replaces this character's slot)."
@@ -69,14 +80,23 @@ class Session:
         elif text == "load":
             saved = saves.read_save(self.save_id)
             # Validate the entire path before discarding the current session.
-            validate_replay(saved.choices)
-            raise Restart(Session(Hero(name=saved.name), saved.choices, saved.save_id))
+            validate_replay(saved.choices, saved.rules_version)
+            raise Restart(
+                Session(
+                    Hero(name=saved.name),
+                    saved.choices,
+                    saved.save_id,
+                    saved.rules_version,
+                )
+            )
         else:
             return False
         return True
 
 
-def validate_replay(choices: list[int]) -> None:
+def validate_replay(
+    choices: list[int], rules_version: int = saves.CURRENT_RULES
+) -> None:
     """Replay the actual branching story on a temporary hero without input."""
     from contextlib import redirect_stdout
     from io import StringIO
@@ -84,7 +104,7 @@ def validate_replay(choices: list[int]) -> None:
     from hero_on_probation import game
 
     previous = getattr(game, "session", None)
-    trial = Session(Hero(), choices)
+    trial = Session(Hero(), choices, rules_version=rules_version)
     trial.validating = True
     game.session = trial
     try:

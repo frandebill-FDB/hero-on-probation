@@ -1,18 +1,20 @@
 # Hero on Probation
 
-A short original English-language comic fantasy adventure. Return the Demon
-King's frying pan, recruit a questionable companion, and obtain dinner.
+A short English-language comic fantasy RPG about questionable heroes and
+ordinary deliveries. Keep the same character across brief journeys, grow stronger,
+and build a record in the Hall of Fame.
 
-## Run
+## Install and run
 
-Requires Python 3.10+ and uv:
+Requires Python 3.10+ and uv. No GUI, network service, external dataset or
+third-party runtime dependency is needed during play.
 
 ```sh
 uv sync
 uv run -m hero_on_probation
 ```
 
-From the project root, the grading installation and launch commands are:
+The course's installation and launch commands also work:
 
 ```sh
 uv venv
@@ -20,107 +22,120 @@ uv pip install -e .
 uv run -m hero_on_probation
 ```
 
-All commands work in a text terminal; no GUI, network service or external data
-is needed during play. Run commands from the project root so saves use the
-same location each time.
-Start by creating a named character or loading an existing character from the menu.
-Character creation currently sets the hero's name, not a class or a stat build;
-everyone starts with the same equipment and 3 gold. These are local characters,
-not online accounts.
+Run from the same project directory each time: local saves live under `saves/`.
 
-Enter a displayed number to choose, or `quit` to exit. Invalid input is retried.
-At any choice (and after the ending), use `status`, `bag`, `quests`, or `journal`.
-Every story choice displays a command bar. Type `save` at the same `>` prompt
-to save **right there**, before picking the next story option; `load` returns to
-that saved decision. These commands are available throughout the adventure,
-including the guild, shop, side quests and bridge, not only after an ending.
-The inventory tracks quantities, equipped items, the quest pan and its condition.
-Turning your wooden sword into bread removes it from inventory; an equipped
-Iron Sword stays equipped.
+## Start here
 
-## Characters and saves
+Choose **1. Create a continuing-journey character**. Names are 1–24 printable
+characters; duplicate active names are rejected without case sensitivity.
+Everyone starts at level 1 with 12 HP, 3 gold and the same equipment.
 
-The opening menu offers:
+Ring the guild bell, accept the delivery and recruit Pip or Bea. Explore town
+or go straight to the crossing, then deliver the parcel or challenge the boss.
+The numbered ending menu offers another journey with the same character.
+Levels, XP, money, equipment, unused repair kits and achievements carry over.
+Health is restored; task items and local quest progress reset. Choose a companion
+again on each journey.
 
-1. **Create a character:** enter a printable name of 1-24 characters (0 cancels).
-   Existing names are checked without case sensitivity to prevent accidental
-   duplicates. A new character's starting progress is saved immediately.
-2. **Load a character's save:** pick a name from the list to resume that character.
-3. **Delete a character's save:** select a name, then type `DELETE` to confirm.
-   Anything else cancels. The file is moved to `saves/deleted/`, not permanently
-   erased, and disappears from the active character list. Other saves are untouched.
-4. **Import the old version-3 save:** give the progress in `saves/adventure-v3.json`
-   a new character name. The original file is preserved, and the imported game
-   resumes at its saved choice or ending.
-5. **Quit.**
+Three short jobs rotate through the same structure: return a frying pan to the
+Demon King, bring blackout curtains to Count Snooze, and deliver a resignation
+form to the Lich Manager. There is no expanding world map or random grinding.
 
-During play, `save` replaces only the current character's slot and `load` restores
-that same character. Use `menu` to change characters, create another or delete a
-save. **Later progress is not autosaved:** use `save` before `menu` or `quit`.
+Type a displayed number to act. Other commands:
 
-Version-four files live at `saves/<generated-id>.json` and contain character
-identity plus decisions. Names are never used as filenames. Loading replays the
-decisions from a fresh hero with the saved name, without doubling rewards or
-printing previous story text. Loading does not modify the file. Saves, including
-deleted copies, are local and excluded from Git.
+- `status`, `bag`, `quests`, `journal`, `achievements`: inspect your character.
+- `hall`: show achievement records across journey characters.
+- `back` or Enter: redisplay the current options, **not undo** a decision.
+- `save` / `load`: reload the latest automatic snapshot.
+- `menu` / `quit`: return to character selection or exit.
 
-To recover a deleted save manually, first quit the game. The deletion message
-shows the backup path; its JSON contains the original ID at `character.id`.
-Copy that file back to `saves/<original-id>.json` without replacing an existing
-file. Avoid restoring beside a newly created character with the same name.
+Information commands redisplay the current choices and never spend a battle turn.
 
-Version-two `saves/adventure.json` files cannot be imported because the opening
-changed; use the preserved `v0.1.0` game to play those files. They are left untouched.
+## Saving: continuing journeys versus classic characters
 
-## Game scope
+**Continuing journeys autosave every numbered decision**, including purchases,
+wager stakes, battle turns, XP and final outcomes. `load` restores the latest
+snapshot; it is not a pre-battle checkpoint and cannot undo a losing wager.
+Enemy health, round number and used companion actions survive exit/relaunch.
+Progress and Hall of Fame updates commit in one SQLite transaction in
+`saves/journeys.sqlite3`. A failed write keeps the previously saved state.
+Concurrent stale windows cannot overwrite a newer revision.
 
-Keep the adventure short: one pan delivery, one optional town hub, two brief
-side errands, one bridge encounter, three delivery endings and one early exit ending.
-Do not add more locations
-or a long combat grind. Aim for short dialogue beats followed by a decision;
-humour should come from choices and their consequences.
+**Classic characters** retain their original manual-save, decision-replay rules.
+`save` keeps a checkpoint; `load` restores it. Their version-4/5 JSON files remain
+supported and are not silently converted. Imported version-3 saves keep the
+original non-turn-based story. Version-2 saves require the preserved `v0.1.0` game.
 
-Each ending unlocks a different achievement. The option text does not announce
-which choices end the adventure; discoveries are part of the joke.
+The main menu includes:
+
+1. Create a continuing-journey character.
+2. Load an active character (journey or classic).
+3. Delete a character after typing `DELETE`.
+4. Import an old unnamed version-3 classic save.
+5. Quit.
+6. Hall of Fame.
+7. Create a classic combat-edition character.
+8. Copy a **completed, saved** classic character into a new journey character.
+9. Restore a deleted journey character.
+
+Option 8 asks for a new unique name and preserves the original file. Money,
+equipment, unused repair kits and achievements carry over. There is no invented
+retroactive XP; old achievement times and original levels are reported unknown.
+An unfinished classic adventure must be completed and saved before copying.
+
+Deletion is recoverable. Journey characters are archived inside the database;
+option 9 restores them if the name is available. Their Hall of Fame entries
+remain visible and labelled as deleted. Classic JSON saves move to
+`saves/deleted/`; restore a copy manually to `saves/<character.id>.json` without
+overwriting an existing slot. All saves and the local hall are excluded from Git.
+
+Back up the `saves/` directory while the game is closed to move your progress.
+
+## Growth, combat and second journeys
+
+XP to the next level is `100 × current level`. Each level adds 8 maximum HP,
+4 attack and 2 defence. Weapons add their base damage (wood 3, iron 5), and a
+Pot Lid adds 1 defence. Defending adds 4 protection for that turn. Damage never
+goes below zero. Repair kits fix damaged parcels but cannot reverse bread magic.
+
+A bridge or merchant victory gives 30 XP. Real boss victory gives 150 XP.
+Delivery endings give task XP, and first-time achievements add bonuses.
+Bea counters and blocks once per battle. Pip turns an enemy **and the parcel**
+into bread. Ordinary attacks can defeat a boss after sufficient growth.
+
+From journey 2, both the equipment shopkeeper and certificate clerk offer an
+optional 5-gold wager: win receives 10 gold total; defeat or retreat loses the
+stake. Each merchant accepts one wager per journey. Pip's bread spell is banned;
+Bea is allowed. Afterwards health is restored and the shop stays open.
+A displayed-price boss bribe is also available from journey 2.
 
 <details>
-<summary>Ending and achievement reference (spoilers)</summary>
+<summary>Ending and reward spoilers</summary>
 
-| Ending | Achievement |
-| --- | --- |
-| Delivery Complete | DELIVERY HERO — defeated the shipping estimate |
-| Dish Duty | LORD OF THE RINSE — came for gold, stayed for grease |
-| Accidental Catering | BREADWINNER — delivered edible cookware |
-| Clocked Out | ANY% HERO — skipped the quest and the unpaid lunch break |
+The journey edition has ten endings: the eight classic combat outcomes plus
+**HONEST VICTORY** / EARNED THE HARD WAY and **PAID PERFORMANCE** / PAY-TO-WIN HERO.
+First unlocking **BREAD OF THE REALM** gives 1,000 bonus XP. Later journeys can
+earn normal battle/task XP again, but never repeat that first-unlock jackpot.
+Repeated refusal gives no extra XP and does not advance the journey number.
+Bribery pays no delivery gold or boss XP; its first achievement gives 100 XP.
+
+Journey bosses use 120–140 HP, 18–20 attack and 8 defence, fixed by the rotating
+job rather than scaling to the player's level. The classic 9999-HP boss remains
+unchanged in classic saves. The growth edition is deliberately rebalanced so
+low-level heroes lose while experienced characters can win through normal combat.
+
+Full rules: [progression](docs/progression.md) and [ending reference](docs/endings.md).
 
 </details>
 
-Use `achievements` to review the current playthrough's unlocks. They are restored
-with a saved playthrough, not collected globally across separate new games.
+## Hall of Fame
 
-The guild, an explorable town, the bridge and the castle; two companions,
-three delivery endings, an optional refusal ending and kindness callbacks.
-At the guild, optionally inspect your contract and pockets, ask about the parcel,
-and meet the companions before recruiting one. Ring the bell, accept the parcel,
-then choose a companion to advance. Questions can be skipped or revisited;
-repeating them grants no extra items or money. The delivery remains the main job.
-Review commands and save/load still work after an ending. Saving then records
-the completed result, not an earlier checkpoint. Use `load` for the last saved
-decision or `menu` to select/create a different character.
-Bridge choices change gold and the pan's condition; the pan's condition at delivery
-determines the ending. The duel is a single
-choice encounter, not a full combat system. Equipment has specific story effects
-rather than numeric combat statistics:
-
-- Iron Sword (5 gold): unlocks a clean victory in the bridge duel.
-- Pot Lid (3 gold): blocks the spoon without damaging the quest pan.
-- Repair Kit (2 gold): automatically repairs a dented pan before delivery.
-
-Visit town locations in any order and return as often as needed before leaving.
-The rats' moving dispute pays 2 or 4 gold and gives a reference that waives the
-toll. The warehouse ghost pays 3 gold and provides a castle reference worth
-2 gold on arrival. Both quests can be deferred; rewards are granted once only.
-Pip and Bea produce different ghost-quest dialogue and items.
+Main-menu option 6 shows each journey character's achievement, first-earned UTC
+timestamp, full save ID, character name, first-earned journey/level and count.
+Repeating an achievement keeps its original timestamp. Different characters
+have separate records. Deleted characters remain identified in the hall.
+Classic achievements enter the hall when copied via option 8, with unknown
+historical timestamps explicitly marked. These are local records, not online rankings.
 
 ## Verify
 
@@ -128,31 +143,32 @@ Pip and Bea produce different ghost-quest dialogue and items.
 uv run python -m unittest discover -s tests -v
 ```
 
-## Code and limitations
+GitHub Actions is configured for Ubuntu 24.04 with Python 3.10 and 3.12.
+A configured workflow is not proof that a particular unpushed revision passed.
 
-- `models.py`: the Hero data class with gold, inventory, equipment and progress.
-- `game.py`: numbered input, main scenes and ending achievements.
-- `town.py`: optional errands and purchases.
-- `session.py`: information commands, validated JSON saves and replay.
-- `menu.py`: character creation, selection, old-save import and deletion confirmation.
-- `saves.py`: versioned character files, atomic writes and recoverable deletion.
-- `tests/test_adventure.py`: rewards, purchases, endings and save regression tests.
-- `tests/test_characters.py`: character identity, isolated saves, import and deletion.
+## Code structure and limitations
 
-The game deliberately uses a short, deterministic choice-based duel rather than
-a full combat engine. Achievements belong to one character's playthrough. There
-is one slot per character and no ongoing autosave. Story changes can require a new save version, because
-saves replay decisions rather than storing a snapshot of the call stack.
+- `journey.py`: serializable state, growth, scenes and turn-based transitions.
+- `journey_store.py`: SQLite transactions, optimistic revisions, archive/restore and honours.
+- `journey_cli.py`: input, information views and automatic persistence.
+- `menu.py`: shared character selection and safe classic-to-journey copying.
+- `models.py`, `game.py`, `town.py`, `combat.py`, `session.py`, `saves.py`:
+  preserved classic story and replay-save compatibility.
+- `tests/`: legacy regressions, combat and endings, navigation, journeys and storage failures.
 
-The public API exposes `Hero`, for example:
+Public reusable types are available without starting the terminal interface:
 
 ```python
-from hero_on_probation import Hero
+from hero_on_probation import Hero, Journey
 
-hero = Hero(name="Mira")
-print(hero.gold)
+character = Journey(save_id="a" * 32, name="Mira")
+print(character.status())
 ```
 
-Design decisions and development notes are in [the development log](docs/development-log.md).
-Original playtesting requests and follow-up status are in [the feedback record](docs/feedback.md).
-Outstanding release checks are in [the submission checklist](docs/submission-checklist.md).
+This is a small local single-player game: no classes, skill tree, multiplayer,
+cloud sync, global anti-cheat or unlimited new story content. The same three job
+templates repeat. File backup manipulation is outside its reward protections.
+The initial balance and dialogue still need player feedback.
+
+See the [development log](docs/development-log.md),
+[original feedback](docs/feedback.md) and [submission checklist](docs/submission-checklist.md).

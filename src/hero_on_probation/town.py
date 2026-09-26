@@ -37,8 +37,8 @@ def shop(hero: Hero, choose: Choose) -> None:
         action = choose(
             f'Shopkeeper: "No refunds for destiny." | Gold: {hero.gold}',
             [
-                "Iron Sword: 5 gold. Win the bridge duel without damaging the pan.",
-                "Pot Lid: 3 gold. Protect the pan when blocking a spoon.",
+                "Iron Sword: 5 gold. A stronger weapon for the bridge duel.",
+                "Pot Lid: 3 gold. Protect the pan when defending.",
                 "Repair Kit: 2 gold. Fix a dent before delivery (automatic).",
                 "Return to the square.",
             ],

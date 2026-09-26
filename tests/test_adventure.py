@@ -14,6 +14,17 @@ from hero_on_probation.town import ghost, rats, shop
 
 
 class AdventureTests(unittest.TestCase):
+    def test_demon_king_is_the_dragon_without_changing_delivery_result(self):
+        hero = Hero(gold=0)
+        game.session = session.Session(hero, rules_version=1)
+        output = StringIO()
+        with redirect_stdout(output):
+            game.arrival(hero)
+        self.assertIn("A dragon in an apron", output.getvalue())
+        self.assertIn("This is the Demon King.", output.getvalue())
+        self.assertEqual(hero.achievements, ["DELIVERY HERO"])
+        self.assertEqual(hero.gold, 5)
+
     def test_save_command_is_visible_at_story_choices_and_does_not_advance(self):
         with tempfile.TemporaryDirectory() as directory:
             output = StringIO()
@@ -65,7 +76,9 @@ class AdventureTests(unittest.TestCase):
 
     def play_game(self):
         """Exercise the story with a selected character; menus have separate tests."""
-        game.run_session(session.Session(Hero(name="Tester"), save_id="a" * 32))
+        game.run_session(
+            session.Session(Hero(name="Tester"), save_id="a" * 32, rules_version=1)
+        )
 
     def test_declining_finishes_without_accepting_or_starting_later_scenes(self):
         for decisions in ([3, 5], [1, 2, 3, 1, 2, 3, 5]):
@@ -120,7 +133,8 @@ class AdventureTests(unittest.TestCase):
             self.assertEqual(
                 json.loads(path.read_text()),
                 {
-                    "version": 4,
+                    "version": 5,
+                    "rules_version": 1,
                     "character": {"id": "a" * 32, "name": "Tester"},
                     "choices": [3, 5],
                 },
@@ -175,7 +189,10 @@ class AdventureTests(unittest.TestCase):
                 self.play_game()
         text = output.getvalue()
         self.assertEqual(text.count("You wake up at a counter."), 1)
-        self.assertEqual(text.count("Visit the equipment shop."), 2)
+        # Initial display, redisplay after saving, then the restored decision.
+        self.assertEqual(text.count("Visit the equipment shop."), 3)
+        restored = text.split("Save loaded.", 1)[1]
+        self.assertEqual(restored.count("Visit the equipment shop."), 1)
         self.assertNotIn("Restored choice:", text)
         self.assertEqual(game.session.history, [3, 4, 3, 2])
 
@@ -248,7 +265,7 @@ class AdventureTests(unittest.TestCase):
                 self.assertIn(f"Achievement unlocked: {achievement}.", hero.journal)
 
     def run_choices(self, hero, choices, function):
-        game.session = session.Session(hero, choices)
+        game.session = session.Session(hero, choices, rules_version=1)
         game.session.validating = True
         with redirect_stdout(StringIO()):
             function(hero, game.choose)
@@ -304,7 +321,7 @@ class AdventureTests(unittest.TestCase):
         hero = Hero(gold=42)
         original = session.Session(hero)
         game.session = original
-        session.validate_replay([3, 4, 3, 1, 2, 1, 3, 2, 4, 5, 2])
+        session.validate_replay([3, 4, 3, 1, 2, 1, 3, 2, 4, 5, 2], rules_version=1)
         self.assertIs(game.session, original)
         self.assertEqual(hero.gold, 42)
         with self.assertRaises(ValueError):
@@ -325,7 +342,7 @@ class AdventureTests(unittest.TestCase):
             self.assertEqual(game.session.hero.gold, 17)
             self.assertEqual(game.session.hero.achievements, ["DELIVERY HERO"])
             self.assertEqual(game.session.hero.quests["Return the pan"], "Done")
-            self.assertEqual(json.loads(path.read_text())["version"], 4)
+            self.assertEqual(json.loads(path.read_text())["version"], 5)
 
     def test_save_at_nested_shop_choice(self):
         commands = ["3", "4", "3", "2", "1", "save", "load", "quit"]

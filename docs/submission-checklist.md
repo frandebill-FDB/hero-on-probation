@@ -1,5 +1,20 @@
 # Submission checklist
 
+## Current local edition — 2026-09-24
+
+- [x] Version 0.2.0 continuing journeys and classic-save compatibility implemented.
+- [x] 100 local tests and Ruff checks pass.
+- [x] Fresh temporary Python 3.12 editable installation, tests and module launch pass.
+- [x] README, progression rules, endings and development feedback updated.
+- [ ] Player has accepted new progression balance and second-journey controls.
+- [ ] Latest implementation uploaded and that exact revision passes Ubuntu CI.
+
+The earlier release had a public repository and passing CI. Those historical
+results do not verify the new continuing-journey code. The final-delivery checks
+below must be confirmed against the version actually submitted.
+
+## Final-delivery checks
+
 - [x] Installable Python 3.10+ package with module entry point.
 - [x] Local Git baseline preserves the existing prototype honestly.
 - [x] README explains play, commands, saves and limitations.

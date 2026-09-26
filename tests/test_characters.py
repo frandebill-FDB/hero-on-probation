@@ -33,7 +33,7 @@ class CharacterTests(unittest.TestCase):
         return saved
 
     def test_create_character_shows_name_and_saves_starting_progress(self):
-        text = self.run_menu(["1", "  Mira  ", "status", "quit"])
+        text = self.run_menu(["7", "  Mira  ", "status", "quit"])
         slots = saves.list_saves()
         self.assertEqual(len(slots), 1)
         self.assertEqual(slots[0].name, "Mira")
@@ -42,11 +42,11 @@ class CharacterTests(unittest.TestCase):
         self.assertEqual(game.session.hero.name, "Mira")
 
     def test_blank_long_and_control_character_names_are_retried(self):
-        self.run_menu(["1", "", " ", "x" * 25, "\x1b[2J", "Éva", "quit"])
+        self.run_menu(["7", "", " ", "x" * 25, "\x1b[2J", "Éva", "quit"])
         self.assertEqual([saved.name for saved in saves.list_saves()], ["Éva"])
 
     def test_names_cannot_escape_the_save_directory(self):
-        self.run_menu(["1", "../../example", "quit"])
+        self.run_menu(["7", "../../example", "quit"])
         slot = saves.list_saves()[0]
         self.assertEqual(slot.name, "../../example")
         self.assertEqual(saves.save_path(slot.save_id).parent, self.root)
@@ -55,26 +55,26 @@ class CharacterTests(unittest.TestCase):
     def test_duplicate_name_is_rejected_without_overwriting_existing_slot(self):
         original = self.seed(choices=[3, 5])
         before = saves.save_path(original.save_id).read_bytes()
-        text = self.run_menu(["1", " ada ", "Mira", "quit"])
+        text = self.run_menu(["7", " ada ", "Mira", "quit"])
         self.assertIn("already has a save", text)
         self.assertEqual(saves.save_path(original.save_id).read_bytes(), before)
         self.assertEqual(len(saves.list_saves()), 2)
 
     def test_creation_cancel_and_eof_do_not_create_a_character(self):
-        self.run_menu(["1", "0", "5"])
-        self.run_menu(["1", EOFError()])
+        self.run_menu(["7", "0", "5"])
+        self.run_menu(["7", EOFError()])
         self.assertEqual(saves.list_saves(), [])
 
     def test_two_characters_keep_separate_progress_and_identity(self):
         self.run_menu(
             [
-                "1",
+                "7",
                 "Ada",
                 "3",
                 "5",
                 "save",
                 "menu",
-                "1",
+                "7",
                 "Mira",
                 "3",
                 "4",
@@ -97,7 +97,7 @@ class CharacterTests(unittest.TestCase):
 
     def test_in_game_load_restores_only_current_character(self):
         other = self.seed("Other", [3, 5])
-        self.run_menu(["1", "Mira", "3", "save", "1", "load", "quit"])
+        self.run_menu(["7", "Mira", "3", "save", "1", "load", "quit"])
         self.assertEqual(game.session.hero.name, "Mira")
         self.assertEqual(game.session.history, [3])
         self.assertEqual(saves.read_save(other.save_id).choices, [3, 5])
@@ -105,7 +105,7 @@ class CharacterTests(unittest.TestCase):
     def test_mid_story_save_survives_quitting_and_loading_from_start_menu(self):
         self.run_menu(
             [
-                "1",
+                "7",
                 "Mira",
                 "3",
                 "4",
@@ -129,7 +129,7 @@ class CharacterTests(unittest.TestCase):
         self.assertNotIn("ENDING:", text)
 
     def test_return_to_menu_does_not_autosave(self):
-        self.run_menu(["1", "Ada", "3", "5", "menu", "2", "1", "quit"])
+        self.run_menu(["7", "Ada", "3", "5", "menu", "2", "1", "quit"])
         self.assertEqual(game.session.hero.name, "Ada")
         self.assertEqual(game.session.history, [])
         self.assertEqual(game.session.hero.achievements, [])

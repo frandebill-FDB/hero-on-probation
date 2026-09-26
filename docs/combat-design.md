@@ -1,4 +1,11 @@
-# Combat design — working draft
+# Combat design — historical proposal (2026-09-20)
+
+This document preserves the pre-implementation discussion, not the current
+feature status. The classic combat edition subsequently implemented these
+encounters. The 2026-09-24 continuing-journey edition adds levelling, ordinary
+boss victory, merchant wagers and bribery; its implemented rules and numbers
+are documented in [progression.md](progression.md). Statements below about
+pending work describe the historical proposal only.
 
 Status: design only, recorded on 2026-09-20. No combat system is implemented by
 this document. Original feedback: [FB-005](feedback.md#fb-005--no-real-combat-system)
@@ -73,7 +80,7 @@ achievement. The encounter should not grant repeatable gold or rewards.
 - Reaching the castle after this action produces the existing bread-pan ending
   and reward, not the intact-pan ending.
 
-## Final-boss extension — identity and consequences still open
+## Final-boss extension — the Demon King is a dragon
 
 In [FB-008](feedback.md#fb-008--pip-can-turn-the-final-boss-into-bread), I also
 suggested that bringing Pip and insisting on fighting the final dragon/boss
@@ -87,7 +94,13 @@ to be specified. The bridge spell's pan-transformation drawback is retained;
 its application at the final scene must account for whether the pan has already
 been handed over.
 
-Before adding this scene, clarify how the requested dragon relates to the
-current Demon King. Do not replace that character or add an unrelated extra
-boss without settling the story choice. Then define the non-Pip path, rewards,
-achievement and save compatibility, keeping the finale short.
+In [FB-009](feedback.md#fb-009--the-demon-king-is-the-dragon), I chose to make the
+existing Demon King a dragon rather than add a separate dragon character.
+He is still the owner of the frying pan and wears an apron when opening the
+castle door. The current arrival text now establishes this identity.
+
+The delivery remains the main task. A future option to insist on fighting will
+lead to this same character's boss encounter, not an additional location or
+unrelated quest. Bringing Pip will allow the proposed bread transformation.
+The actual boss fight, non-Pip path, rewards, achievement and save compatibility
+still need implementation. This story clarification does not add that fight yet.

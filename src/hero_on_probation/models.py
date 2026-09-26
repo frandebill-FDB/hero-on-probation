@@ -21,3 +21,6 @@ class Hero:
     journal: list[str] = field(default_factory=list)
     achievements: list[str] = field(default_factory=list)
     name: str = "Hero"
+    hp: int = 12
+    max_hp: int = 12
+    ending: str = ""

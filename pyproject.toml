@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "hero-on-probation"
-version = "0.1.0"
-description = "A short comic fantasy adventure about returning a frying pan."
+version = "0.2.0"
+description = "Short comic fantasy journeys with persistent growth and a Hall of Fame."
 readme = "README.md"
 requires-python = ">=3.10"
 

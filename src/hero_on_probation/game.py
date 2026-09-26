@@ -3,6 +3,9 @@
 import sys
 from contextlib import redirect_stdout
 
+from hero_on_probation import combat
+from hero_on_probation.journey import Journey
+from hero_on_probation.journey_cli import run as run_journey
 from hero_on_probation.menu import start_menu
 from hero_on_probation.models import Hero
 from hero_on_probation.session import Restart, Session
@@ -35,6 +38,21 @@ class ReplayOutput:
         self.output.flush()
 
 
+def show_choice(prompt: str, options: list[str]) -> None:
+    """Redisplay the current decision without running scene or battle logic."""
+    print(
+        f"\n[Hero: {session.hero.name} | Gold: {session.hero.gold} | "
+        f"HP: {session.hero.hp}/{session.hero.max_hp} | Companion: {session.hero.companion or 'Solo'}]"
+    )
+    print(prompt)
+    for number, option in enumerate(options, start=1):
+        print(f"  {number}. {option}")
+    print(
+        "Commands: save (save here) | load | status | bag | help | back | menu | quit"
+    )
+    print("Enter a number to act; back or Enter redisplays this choice (no undo).")
+
+
 def choose(prompt: str, options: list[str]) -> int:
     """Keep asking until the player selects a numbered option."""
     if session.replay:
@@ -46,22 +64,20 @@ def choose(prompt: str, options: list[str]) -> int:
     if session.validating:
         raise ReplayComplete
     session.restoring = False
-    print(
-        f"\n[Hero: {session.hero.name} | Gold: {session.hero.gold} | "
-        f"Companion: {session.hero.companion or 'Solo'}]"
-    )
-    print(prompt)
-    for number, option in enumerate(options, start=1):
-        print(f"  {number}. {option}")
-    print("Commands: save (save here) | load | status | bag | help | menu | quit")
+    show_choice(prompt, options)
     while True:
         answer = input("> ").strip()
         if answer.lower() == "quit":
             raise EOFError
         if answer.lower() == "menu":
             raise ReturnToMenu
+        if answer.lower() in ("", "back"):
+            show_choice(prompt, options)
+            continue
         try:
             if session.command(answer.lower()):
+                print("\nBack to your current choice. No action taken.")
+                show_choice(prompt, options)
                 continue
         except (OSError, ValueError) as error:
             print(f"Cannot complete command: {error}")
@@ -70,7 +86,7 @@ def choose(prompt: str, options: list[str]) -> int:
             session.history.append(int(answer))
             return int(answer)
         print(
-            f"Enter a number from 1 to {len(options)}, or use save / load / help / menu / quit."
+            f"Enter a number from 1 to {len(options)}, or use back / save / load / help / menu / quit."
         )
 
 
@@ -159,6 +175,7 @@ def refusal_ending(hero: Hero) -> None:
     print('You: "And already I need a break."')
     print("You leave the box on the counter and walk out. Nobody stops you.")
     print("\nENDING: CLOCKED OUT")
+    hero.ending = "CLOCKED OUT"
     hero.journal.append(
         "Declined the delivery. Ending: CLOCKED OUT. No pay, no dishes."
     )
@@ -211,7 +228,7 @@ def meet_companions(hero: Hero) -> None:
     hero.journal.append(f"Recruited {hero.companion}.")
 
 
-def bridge(hero: Hero) -> None:
+def bridge(hero: Hero) -> bool:
     """Resolve the toll through payment, help, force, or a companion."""
     print("\nA slime blocks the bridge. It is wearing a tiny official badge.")
     print('Slime: "Two gold. Swimming is free. So are complaints."')
@@ -225,6 +242,31 @@ def bridge(hero: Hero) -> None:
         options.append("Show the rats' recommendation. Free passage.")
     while True:
         action = choose("How will you cross?", options)
+        if action == 3 and session.rules_version >= 2:
+            result = combat.fight(hero, combat.slime(), choose)
+            if result == "retreat":
+                print(
+                    "You step back from the bridge. The slime offers a customer survey."
+                )
+                continue
+            if result == "defeat":
+                hero.quests["Bridge duel"] = "Failed"
+                finish_combat_ending(hero, "TOLL TAKEN")
+                return False
+            hero.quests["Bridge duel"] = "Done"
+            if result == "bread":
+                unlock_achievement(
+                    hero,
+                    "BREAD OVER BRAWN",
+                    "You solved a combat encounter with a bakery.",
+                )
+                print(
+                    'The bun squeaks, "The toll still applies!" It cannot hold its spoon.'
+                )
+            else:
+                print('Slime: "You win. Please rate your violence five stars."')
+            print("You cross without paying. The castle is just ahead.")
+            return True
         if action != 1 or hero.gold >= 2:
             break
         print(
@@ -304,6 +346,86 @@ def bridge(hero: Hero) -> None:
         hero.journal.append("Bea found a free route through shallow water.")
         print('Bea: "The water is ankle-deep. I checked while you were talking."')
         print("You walk around the bridge. Bea remains undefeated.")
+    return True
+
+
+def finish_combat_ending(hero: Hero, ending: str) -> None:
+    """Settle a terminal battle outcome once, without delivery payment."""
+    outcomes = {
+        "TOLL TAKEN": (
+            "SPOON-FED DEFEAT",
+            "You lost to cutlery. The guild has requested its sword back.",
+            "The slime puts you in the recovery position and prints a defeat receipt.",
+        ),
+        "BOSS DEFEAT": (
+            "ONE-HIT INTERN",
+            "Your sword dealt zero damage. Your confidence took 999.",
+            'The dragon flicks you onto the welcome mat. "Delivery attempted," he writes.',
+        ),
+        "TACTICAL RETREAT": (
+            "CAREER PRESERVATION",
+            "You chose a long life over a very short boss fight.",
+            "Your feet resign before your mouth can explain. Bea would approve.",
+        ),
+        "THE FINAL LOAF": (
+            "BREAD OF THE REALM",
+            "You defeated the final boss. The kingdom now has a crust problem.",
+            'Pip: "I promised to handle the final course." You: "You said boss."',
+        ),
+    }
+    achievement, description, scene = outcomes[ending]
+    hero.ending = ending
+    failed = ending in ("TOLL TAKEN", "BOSS DEFEAT")
+    hero.quests["Return the pan"] = "Failed" if failed else "Cancelled"
+    hero.journal.append(f"Ending: {ending}. Delivery reward: 0 gold.")
+    print(scene)
+    if ending == "THE FINAL LOAF":
+        print("The enormous dragon loaf still wears an apron. The pan is bread too.")
+        print('Dragon loaf: "Do NOT serve me with soup."')
+        print("Dinner: enormous. Payment: pending. Nobody can sign the receipt.")
+    elif failed:
+        print(
+            "You are unconscious, not deleted. Your saved progress is still available."
+        )
+    else:
+        print("Dinner: missed. Survival: achieved. The pan is still your problem.")
+    print(f"\nENDING: {ending}")
+    unlock_achievement(hero, achievement, description)
+    print(f"Hero: {hero.name} | HP: {hero.hp}/{hero.max_hp} | Gold: {hero.gold}")
+    print(
+        f"Companion: {hero.companion or 'None'} | Pan: {hero.pan} | Delivery reward: 0 gold"
+    )
+
+
+def challenge_boss(hero: Hero) -> bool:
+    """Offer two opportunities to deliver peacefully before a terminal fight."""
+    decision = choose(
+        "The dragon sets the table. What do you do?",
+        ["Hand over the pan and stay for dinner.", "Ask for a proper boss fight."],
+    )
+    if decision == 1:
+        return False
+    print('Demon King: "I have 9999 HP and a casserole in the oven. Choose carefully."')
+    decision = choose(
+        "He puts down his oven gloves.",
+        ["Maybe dinner first. Return the pan.", "I insist. Draw your weapon."],
+    )
+    if decision == 1:
+        return False
+    hero.quests["Challenge the Demon King"] = "Active"
+    result = combat.fight(hero, combat.demon_king(), choose)
+    if result == "bread":
+        hero.quests["Challenge the Demon King"] = "Done"
+        finish_combat_ending(hero, "THE FINAL LOAF")
+    elif result == "retreat":
+        hero.quests["Challenge the Demon King"] = "Abandoned"
+        finish_combat_ending(hero, "TACTICAL RETREAT")
+    elif result == "defeat":
+        hero.quests["Challenge the Demon King"] = "Failed"
+        finish_combat_ending(hero, "BOSS DEFEAT")
+    else:
+        raise RuntimeError("The Demon King's armour must prevent ordinary victory.")
+    return True
 
 
 def arrival(hero: Hero) -> None:
@@ -331,7 +453,8 @@ def arrival(hero: Hero) -> None:
             print("The certificate reads: PARTICIPATED.")
     else:
         print("You cannot afford official recognition. You approach the door.")
-    print('\nThe Demon King opens the door wearing an apron. "Finally. My pan."')
+    print("\nA dragon in an apron opens the castle door. This is the Demon King.")
+    print('Demon King: "Finally. My pan."')
     print('You: "Are we going to fight?"')
     print('Demon King: "Have you eaten? No? Then you are not ready for a boss fight."')
     if "Ghost Reference" in hero.inventory:
@@ -340,6 +463,8 @@ def arrival(hero: Hero) -> None:
         print('King: "Our warehouse ghost recommended you. Two gold signing bonus."')
     if "Bread Resignation" in hero.inventory:
         print('King: "An edible resignation? Finally, paperwork I can stomach."')
+    if session.rules_version >= 2 and challenge_boss(hero):
+        return
     if hero.pan == "dented":
         ending = "DISH DUTY"
         print(
@@ -359,6 +484,7 @@ def arrival(hero: Hero) -> None:
         hero.gold += 5
         print("You receive five gold. The Demon King sets an extra place for dinner.")
     print(f"\nENDING: {ending}")
+    hero.ending = ending
     achievements = {
         "DELIVERY COMPLETE": (
             "DELIVERY HERO",
@@ -390,8 +516,8 @@ def play_adventure(hero: Hero) -> None:
     """Run the same story path for live play and save validation."""
     if guild(hero):
         explore_town(hero, choose)
-        bridge(hero)
-        arrival(hero)
+        if bridge(hero):
+            arrival(hero)
 
 
 def run_session(initial: Session) -> bool:
@@ -402,6 +528,9 @@ def run_session(initial: Session) -> bool:
         "Use numbers, or status / bag / quests / journal / achievements / save / load / menu / quit."
     )
     print(f"Playing as {session.hero.name}. Saving affects only this character.")
+    if session.rules_version == 1:
+        print("Original story save: original duel and delivery rules preserved.")
+        print("Create a new character from the menu to play the combat edition.")
     print("Use save before menu or quit to keep your latest progress.")
     while True:
         try:
@@ -414,17 +543,24 @@ def run_session(initial: Session) -> bool:
                 session.command("achievements")
             print("Adventure complete. Saving now records this ending.")
             print("Use load to restore your last save, or menu to select a character.")
-            print(
-                "Commands: status | bag | quests | journal | achievements | save | load | menu | quit"
-            )
+            ending_commands = "Commands: status | bag | quests | journal | achievements | save | load | back | menu | quit"
+            print(ending_commands)
             while True:
                 command = input("> ").strip().lower()
                 if command == "quit":
                     raise EOFError
                 if command == "menu":
                     raise ReturnToMenu
+                if command in ("", "back"):
+                    print(
+                        "Adventure complete. Use load for your last save, or menu for character selection."
+                    )
+                    print(ending_commands)
+                    continue
                 try:
-                    if not session.command(command):
+                    if session.command(command):
+                        print(ending_commands)
+                    else:
                         print(
                             "Use status, bag, quests, journal, achievements, save, load, menu or quit."
                         )
@@ -449,7 +585,11 @@ def main() -> None:
             if selected is None:
                 print("Goodbye!")
                 return
-            if not run_session(selected):
+            if not (
+                run_journey(selected)
+                if isinstance(selected, Journey)
+                else run_session(selected)
+            ):
                 return
     except (EOFError, KeyboardInterrupt):
         print("\nGoodbye! No additional progress was saved.")

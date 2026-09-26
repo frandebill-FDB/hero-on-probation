@@ -8,7 +8,8 @@ from pathlib import Path
 from uuid import uuid4
 
 SAVE_DIR = Path("saves")
-SAVE_VERSION = 4
+SAVE_VERSION = 5
+CURRENT_RULES = 2
 
 
 def character_name(value: str) -> str:
@@ -47,13 +48,17 @@ class SavedGame:
     save_id: str
     name: str
     choices: list[int]
+    rules_version: int = CURRENT_RULES
 
 
 def read_save(save_id: str) -> SavedGame:
-    """Read a version-four character save without modifying it."""
+    """Read character saves; version-four files retain the original story rules."""
     data = json.loads(save_path(save_id).read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or data.get("version") != SAVE_VERSION:
-        raise ValueError("This character requires a version-4 save.")
+    if not isinstance(data, dict) or data.get("version") not in (4, SAVE_VERSION):
+        raise ValueError("This character requires a version-4 or version-5 save.")
+    rules = 1 if data["version"] == 4 else data.get("rules_version")
+    if type(rules) is not int or rules not in (1, CURRENT_RULES):
+        raise ValueError("Unsupported story rules version.")
     profile = data.get("character")
     if not isinstance(profile, dict) or profile.get("id") != save_id:
         raise ValueError("Save identity does not match its filename.")
@@ -61,16 +66,23 @@ def read_save(save_id: str) -> SavedGame:
         save_id,
         character_name(profile.get("name")),
         checked_choices(data.get("choices")),
+        rules,
     )
 
 
 def write_save(saved: SavedGame) -> Path:
     """Atomically replace one character's slot, not other characters' saves."""
     path = save_path(saved.save_id)
+    if type(saved.rules_version) is not int or saved.rules_version not in (
+        1,
+        CURRENT_RULES,
+    ):
+        raise ValueError("Unsupported story rules version.")
     data = {
         "version": SAVE_VERSION,
         "character": {"id": saved.save_id, "name": character_name(saved.name)},
         "choices": checked_choices(saved.choices),
+        "rules_version": saved.rules_version,
     }
     SAVE_DIR.mkdir(parents=True, exist_ok=True)
     temporary = None
