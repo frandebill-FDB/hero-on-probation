@@ -358,16 +358,20 @@ class JourneyTests(unittest.TestCase):
                 "3",
                 "5",
                 "menu",
-                "6",
+                "3",
                 "2",
                 "1",
                 "menu",
-                "3",
+                "4",
+                "1",
                 "1",
                 "DELETE",
-                "6",
-                "9",
+                "0",
+                "3",
+                "4",
+                "2",
                 "1",
+                "0",
                 "2",
                 "1",
                 "quit",
@@ -384,9 +388,10 @@ class JourneyTests(unittest.TestCase):
         saved = saves.SavedGame("a" * 32, "Classic", [3, 5], 2)
         saves.write_save(saved)
         before = saves.save_path(saved.save_id).read_bytes()
-        with patch("builtins.input", side_effect=["8", "1", "Mira", "quit"]):
+        with patch("builtins.input", side_effect=["2", "1", "quit"]):
             game.main()
         state = store.list_journeys()[0]
+        self.assertEqual((state.save_id, state.name), (saved.save_id, saved.name))
         self.assertEqual((state.gold, state.level, state.xp), (3, 1, 0))
         self.assertIsNone(state.achievements["ANY% HERO"]["first_at"])
         self.assertEqual(saves.save_path(saved.save_id).read_bytes(), before)
@@ -449,7 +454,7 @@ class JourneyTests(unittest.TestCase):
                 "3",
                 "1",
                 "menu",
-                "6",
+                "3",
                 "2",
                 "1",
                 "quit",
@@ -511,7 +516,7 @@ class JourneyTests(unittest.TestCase):
     def test_failed_menu_creation_and_information_views_do_not_create_phantom_honours(
         self,
     ):
-        with patch("builtins.input", side_effect=["1", "0", "6", "5"]):
+        with patch("builtins.input", side_effect=["1", "0", "3", "5"]):
             game.main()
         self.assertEqual(store.list_journeys(), [])
         self.assertEqual(store.honours(), [])

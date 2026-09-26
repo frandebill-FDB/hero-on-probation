@@ -10,11 +10,9 @@ from hero_on_probation.journey import Journey
 def run(state: Journey) -> bool:
     """Return to the main menu on True; False exits the application."""
     print(
-        "\nCONTINUING JOURNEY | Every decision autosaves, including wagers and battles."
+        "\nHERO ON PROBATION | Every decision autosaves, including wagers and battles."
     )
-    print(
-        "load restores the latest autosave, not a pre-battle checkpoint. Classic saves are unchanged."
-    )
+    print("load restores the latest autosave, not a pre-battle checkpoint.")
     while True:
         print("\n" + state.status())
         title, options = state.view()

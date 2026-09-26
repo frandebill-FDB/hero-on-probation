@@ -88,31 +88,79 @@ def write_honours(db, state):
         )
 
 
+def legacy_saves():
+    """Hide superseded JSON backups, including when their new character is deleted."""
+    known = set()
+    if (saves.SAVE_DIR / "journeys.sqlite3").exists():
+        with database() as db:
+            known = {row[0] for row in db.execute("SELECT id FROM characters")}
+    return [saved for saved in saves.list_saves() if saved.save_id not in known]
+
+
+def inherit_legacy(state, hero):
+    """Keep verified possessions and mark unrecorded historical times as unknown."""
+    if not hero.ending:
+        raise ValueError("Finish the saved adventure before upgrading its character.")
+    state.gold = hero.gold
+    state.inventory = {k: v for k, v in hero.inventory.items() if k in GEAR}
+    state.equipment = dict(hero.equipment)
+    for title in hero.achievements:
+        state.achievements[title] = {
+            "description": "Imported achievement; original time and level unknown.",
+            "first_at": None,
+            "first_run": 1,
+            "level": 1,
+            "last_run": 1,
+            "count": 1,
+        }
+    state.journal.append(
+        "Previous ending: "
+        + hero.ending
+        + ". No retroactive XP or invented timestamps."
+    )
+
+
+def upgrade(saved: saves.SavedGame, hero) -> Journey:
+    """Upgrade once with the same ID/name; leave the original JSON untouched."""
+    saves.save_path(saved.save_id)
+    name = saves.character_name(saved.name)
+    if hero.name != name:
+        raise ValueError("Character identity mismatch.")
+    with database() as db:
+        existing = db.execute(
+            "SELECT * FROM characters WHERE id=?", (saved.save_id,)
+        ).fetchone()
+        if existing is not None:
+            if existing["deleted"]:
+                raise ValueError(
+                    "This character was deleted. Restore it from Manage saves."
+                )
+            return decode(existing)
+        state = Journey(saved.save_id, name)
+        inherit_legacy(state, hero)
+        state.run = 1 if hero.ending == "CLOCKED OUT" else 2
+        Journey.from_data(state.data())
+        try:
+            with db:
+                db.execute(
+                    "INSERT INTO characters (id,name,name_key,revision,state) VALUES(?,?,?,?,?)",
+                    (state.save_id, name, name.casefold(), 0, json.dumps(state.data())),
+                )
+                write_honours(db, state)
+        except sqlite3.IntegrityError as error:
+            raise ValueError(
+                "Another active character uses that name. No progress was overwritten."
+            ) from error
+    return state
+
+
 def create(name: str, legacy_hero=None) -> Journey:
     name = saves.character_name(name)
-    if any(s.name.casefold() == name.casefold() for s in saves.list_saves()):
+    if any(s.name.casefold() == name.casefold() for s in legacy_saves()):
         raise ValueError("That name already has a save.")
     state = Journey(uuid4().hex, name)
     if legacy_hero is not None:
-        if not legacy_hero.ending:
-            raise ValueError(
-                "Finish the classic adventure before copying its character."
-            )
-        state.gold = legacy_hero.gold
-        state.inventory = {k: v for k, v in legacy_hero.inventory.items() if k in GEAR}
-        state.equipment = dict(legacy_hero.equipment)
-        for title in legacy_hero.achievements:
-            state.achievements[title] = {
-                "description": "Imported classic achievement; original time and level unknown.",
-                "first_at": None,
-                "first_run": 1,
-                "level": 1,
-                "last_run": 1,
-                "count": 1,
-            }
-        state.journal.append(
-            "Copied a completed classic hero. No retroactive XP or invented timestamps."
-        )
+        inherit_legacy(state, legacy_hero)
     Journey.from_data(state.data())
     with database() as db:
         try:
@@ -169,7 +217,7 @@ def restore(save_id: str):
             "SELECT * FROM characters WHERE id=? AND deleted=1", (save_id,)
         ).fetchone()
         state = decode(row)
-        if any(s.name.casefold() == state.name.casefold() for s in saves.list_saves()):
+        if any(s.name.casefold() == state.name.casefold() for s in legacy_saves()):
             raise ValueError("An active classic character has the same name.")
         try:
             with db:

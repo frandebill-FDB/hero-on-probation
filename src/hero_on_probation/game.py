@@ -1,9 +1,10 @@
 """A complete short adventure using numbered choices."""
 
+import sqlite3
 import sys
 from contextlib import redirect_stdout
 
-from hero_on_probation import combat
+from hero_on_probation import combat, journey_store, saves
 from hero_on_probation.journey import Journey
 from hero_on_probation.journey_cli import run as run_journey
 from hero_on_probation.menu import start_menu
@@ -529,8 +530,10 @@ def run_session(initial: Session) -> bool:
     )
     print(f"Playing as {session.hero.name}. Saving affects only this character.")
     if session.rules_version == 1:
-        print("Original story save: original duel and delivery rules preserved.")
-        print("Create a new character from the menu to play the combat edition.")
+        print("Your older save's current story and choices are preserved.")
+        print(
+            "After the ending, use next to continue this character's journey with levels."
+        )
     print("Use save before menu or quit to keep your latest progress.")
     while True:
         try:
@@ -543,8 +546,11 @@ def run_session(initial: Session) -> bool:
                 session.command("achievements")
             print("Adventure complete. Saving now records this ending.")
             print("Use load to restore your last save, or menu to select a character.")
-            ending_commands = "Commands: status | bag | quests | journal | achievements | save | load | back | menu | quit"
+            ending_commands = "Commands: status | bag | quests | journal | achievements | save | load | back | next | menu | quit"
             print(ending_commands)
+            print(
+                "next: continue this character into a new journey, keeping possessions and achievements."
+            )
             while True:
                 command = input("> ").strip().lower()
                 if command == "quit":
@@ -558,13 +564,21 @@ def run_session(initial: Session) -> bool:
                     print(ending_commands)
                     continue
                 try:
+                    if command == "next":
+                        saved = saves.SavedGame(
+                            session.save_id,
+                            session.hero.name,
+                            session.history,
+                            session.rules_version,
+                        )
+                        return run_journey(journey_store.upgrade(saved, session.hero))
                     if session.command(command):
                         print(ending_commands)
                     else:
                         print(
                             "Use status, bag, quests, journal, achievements, save, load, menu or quit."
                         )
-                except (OSError, ValueError) as error:
+                except (OSError, ValueError, sqlite3.Error) as error:
                     print(f"Cannot complete command: {error}")
         except Restart as restart:
             session = restart.session

@@ -7,9 +7,10 @@ combat, retain levels, gold and equipment between journeys, and prohibit Pip's
 bread magic in merchant wagers. The implementation keeps each journey short,
 using three rotating jobs rather than adding a large map or skill tree.
 
-The old classic mode and its saves remain available. New main-menu option 1
-characters use the continuing-journey mode. Option 8 copies completed classic
-characters without modifying their source saves.
+The main menu has one New game entry and one Continue game entry. Older unfinished
+saves retain their current scenes and can continue into the growth system at
+the ending using `next`. Completed older saves upgrade on loading, keeping the
+same name and ID and preserving the original JSON as a hidden recovery backup.
 
 ## Growth and rewards
 
@@ -101,12 +102,15 @@ Achievements store their description, actual first-earned timezone-aware UTC
 timestamp, character ID/name (via the character table), first journey/level,
 last journey and repeat count. The primary key is character ID plus achievement
 name. A repeat on the same journey does not add another count. Records remain
-after a character is archived, clearly marked as a deleted save. Option 9 restores
-that character if its name is not already in use.
+after a character is archived, clearly marked as a deleted save. Manage saves →
+Restore restores that character if its name is not already in use.
 
-Classic copying replays a completed save without writes or prompts, copies money
-and gear into a new level-1 character, and imports achievements without retroactive
+Older-save upgrading replays a completed save without writes or prompts, keeps
+money and gear under the same character identity at level 1, and imports achievements without retroactive
 XP. Unknown historical timestamps and original levels are explicitly shown as
 unknown, not replaced with the import time. The source JSON is left untouched.
+Its ID is marked by the database entry, so the backup is not listed again, even
+if the upgraded character is deleted. A repeated upgrade loads the existing
+progress instead of resetting it or issuing rewards again.
 
 The player's next playtest is still needed to judge pacing and reward balance.

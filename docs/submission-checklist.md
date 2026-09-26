@@ -3,7 +3,7 @@
 ## Current local edition — 2026-09-24
 
 - [x] Version 0.2.0 continuing journeys and classic-save compatibility implemented.
-- [x] 100 local tests and Ruff checks pass.
+- [x] 110 local tests and Ruff checks pass after the unified-menu update.
 - [x] Fresh temporary Python 3.12 editable installation, tests and module launch pass.
 - [x] README, progression rules, endings and development feedback updated.
 - [ ] Player has accepted new progression balance and second-journey controls.

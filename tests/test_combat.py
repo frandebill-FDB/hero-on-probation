@@ -8,7 +8,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-from hero_on_probation import combat, game, saves, session
+from hero_on_probation import combat, game, journey_store, saves, session
 from hero_on_probation.models import Hero
 
 
@@ -226,15 +226,16 @@ class CombatTests(unittest.TestCase):
             redirect_stdout(output),
         ):
             game.main()
-        self.assertEqual(game.session.hero.ending, "DELIVERY COMPLETE")
-        self.assertEqual(game.session.hero.gold, 8)
+        upgraded = journey_store.load(save_id)
+        self.assertEqual(
+            (upgraded.name, upgraded.gold, upgraded.run), ("Old Hero", 8, 2)
+        )
+        self.assertIn("DELIVERY HERO", upgraded.achievements)
         self.assertEqual(path.read_bytes(), before)
-        self.assertIn("Original story", output.getvalue())
+        self.assertIn("Last ending: DELIVERY COMPLETE", output.getvalue())
         self.assertNotIn("The dragon sets the table", output.getvalue())
-        with redirect_stdout(StringIO()):
-            game.session.command("save")
         self.assertEqual(saves.read_save(save_id).rules_version, 1)
-        self.assertEqual(json.loads(path.read_text())["version"], 5)
+        self.assertEqual(json.loads(path.read_text())["version"], 4)
 
     def test_unknown_rule_version_is_rejected(self):
         saved = saves.SavedGame("e" * 32, "Future", [], 999)

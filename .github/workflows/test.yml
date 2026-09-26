@@ -16,9 +16,7 @@ jobs:
       - name: Unit tests
         run: uv run --no-sync python -m unittest discover -s tests -v
       - name: Continuing journey entry point
-        run: printf '1\nCI Hero\n3\n4\n1\n4\n2\n2\n2\n2\n3\n1\nmenu\n6\n2\n1\nquit\n' | uv run --no-sync -m hero_on_probation
-      - name: Classic compatibility entry point
-        run: printf '7\nClassic CI\n3\n5\nsave\nquit\n' | uv run --no-sync -m hero_on_probation
+        run: printf '1\nCI Hero\n3\n4\n1\n4\n2\n2\n2\n2\n3\n1\nmenu\n3\n2\n1\nquit\n' | uv run --no-sync -m hero_on_probation
       - name: Code style
         run: |
           uvx ruff check .

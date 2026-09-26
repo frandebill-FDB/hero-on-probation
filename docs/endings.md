@@ -1,6 +1,6 @@
 # Ending guide — spoilers
 
-## Continuing-journey edition (main-menu option 1)
+## Current game (New game)
 
 This edition has the eight outcomes below plus **HONEST VICTORY** (defeat the
 boss with ordinary combat; EARNED THE HARD WAY; 8 gold) and **PAID PERFORMANCE**
@@ -16,7 +16,7 @@ a pan, curtains and a resignation form; their outcome structure stays the same.
 This mode autosaves every decision, including final settlement. There is no
 rollback checkpoint: loading cannot undo a defeat or a wager.
 
-## Classic combat edition (main-menu option 7 / existing classic saves)
+## Older combat saves (compatibility reference)
 
 The combat edition has eight final endings. Each unlocks a different achievement.
 Achievements belong to the current character's saved playthrough, not a global
@@ -69,5 +69,7 @@ loading, returning to the character menu and quitting. A failed hero is not
 deleted. Loading restores the last manual save; saving after defeat stores that
 completed defeat, so it does not create a pre-battle checkpoint automatically.
 
-Create a new character for these combat routes. Old characters labelled
-`Original story` keep their four original endings and original decision sequence.
+Older unfinished characters retain their original decision sequence until their
+ending. Very old non-combat saves have four endings; later combat saves have
+eight. At the ending use `next` to continue with growth. Main-menu Continue game
+also upgrades completed older saves automatically, preserving the original file.

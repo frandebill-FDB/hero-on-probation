@@ -26,7 +26,7 @@ Run from the same project directory each time: local saves live under `saves/`.
 
 ## Start here
 
-Choose **1. Create a continuing-journey character**. Names are 1–24 printable
+Choose **1. New game**. Names are 1–24 printable
 characters; duplicate active names are rejected without case sensitivity.
 Everyone starts at level 1 with 12 HP, 3 gold and the same equipment.
 
@@ -51,7 +51,7 @@ Type a displayed number to act. Other commands:
 
 Information commands redisplay the current choices and never spend a battle turn.
 
-## Saving: continuing journeys versus classic characters
+## Saving and the main menu
 
 **Continuing journeys autosave every numbered decision**, including purchases,
 wager stakes, battle turns, XP and final outcomes. `load` restores the latest
@@ -61,30 +61,31 @@ Progress and Hall of Fame updates commit in one SQLite transaction in
 `saves/journeys.sqlite3`. A failed write keeps the previously saved state.
 Concurrent stale windows cannot overwrite a newer revision.
 
-**Classic characters** retain their original manual-save, decision-replay rules.
-`save` keeps a checkpoint; `load` restores it. Their version-4/5 JSON files remain
-supported and are not silently converted. Imported version-3 saves keep the
-original non-turn-based story. Version-2 saves require the preserved `v0.1.0` game.
+**Older unfinished saves** resume at their original decisions. Until that older
+adventure ends, they keep manual `save` / `load` checkpoints. At the ending,
+`next` carries the same character into another journey with levels and autosave.
+Loading an already completed older save performs this upgrade automatically,
+reports the previous result, and starts the next journey. The old JSON remains
+untouched as a backup. Version-2 saves require the preserved `v0.1.0` game.
 
 The main menu includes:
 
-1. Create a continuing-journey character.
-2. Load an active character (journey or classic).
-3. Delete a character after typing `DELETE`.
-4. Import an old unnamed version-3 classic save.
+1. **New game** — create a character with growth and automatic saving.
+2. **Continue game** — select any active character; save compatibility is automatic.
+3. **Hall of Fame** — achievements across characters.
+4. **Manage saves** — delete, restore, or import an older save; 0 returns here.
 5. Quit.
-6. Hall of Fame.
-7. Create a classic combat-edition character.
-8. Copy a **completed, saved** classic character into a new journey character.
-9. Restore a deleted journey character.
 
-Option 8 asks for a new unique name and preserves the original file. Money,
-equipment, unused repair kits and achievements carry over. There is no invented
-retroactive XP; old achievement times and original levels are reported unknown.
-An unfinished classic adventure must be completed and saved before copying.
+There is one new-game entry, not a choice of editions. Upgrading an older
+character preserves its name, save ID, money, equipment, unused repair kits and
+achievements. It starts at level 1 with no retroactive XP; historical achievement
+times and levels remain unknown. A completed non-refusal advances to journey 2;
+refusal starts journey 1 again. The source JSON is hidden from the active list
+after upgrade, so it does not appear as a duplicate or reappear after deletion.
+Importing an older unnamed file is available under Manage saves, not on the homepage.
 
 Deletion is recoverable. Journey characters are archived inside the database;
-option 9 restores them if the name is available. Their Hall of Fame entries
+Manage saves → Restore restores them if the name is available. Their Hall of Fame entries
 remain visible and labelled as deleted. Classic JSON saves move to
 `saves/deleted/`; restore a copy manually to `saves/<character.id>.json` without
 overwriting an existing slot. All saves and the local hall are excluded from Git.
@@ -130,11 +131,11 @@ Full rules: [progression](docs/progression.md) and [ending reference](docs/endin
 
 ## Hall of Fame
 
-Main-menu option 6 shows each journey character's achievement, first-earned UTC
+Main-menu option 3 shows each character's recorded achievement, first-earned UTC
 timestamp, full save ID, character name, first-earned journey/level and count.
 Repeating an achievement keeps its original timestamp. Different characters
 have separate records. Deleted characters remain identified in the hall.
-Classic achievements enter the hall when copied via option 8, with unknown
+Older achievements enter the hall when the completed character is upgraded, with unknown
 historical timestamps explicitly marked. These are local records, not online rankings.
 
 ## Verify
@@ -151,7 +152,7 @@ A configured workflow is not proof that a particular unpushed revision passed.
 - `journey.py`: serializable state, growth, scenes and turn-based transitions.
 - `journey_store.py`: SQLite transactions, optimistic revisions, archive/restore and honours.
 - `journey_cli.py`: input, information views and automatic persistence.
-- `menu.py`: shared character selection and safe classic-to-journey copying.
+- `menu.py`: one main menu, save management and automatic older-save upgrades.
 - `models.py`, `game.py`, `town.py`, `combat.py`, `session.py`, `saves.py`:
   preserved classic story and replay-save compatibility.
 - `tests/`: legacy regressions, combat and endings, navigation, journeys and storage failures.
