@@ -15,9 +15,10 @@ def run(state: Journey) -> bool:
     print("load restores the latest autosave, not a pre-battle checkpoint.")
     while True:
         print("\n" + state.status())
-        title, options = state.view()
+        title, _ = state.view()
+        options = state.available_options()
         print(title)
-        for number, option in enumerate(options, 1):
+        for number, option in options:
             print(f"  {number}. {option}")
         print(
             "Commands: status | bag | quests | journal | achievements | hall | save | load | back | menu | quit"
@@ -66,7 +67,7 @@ def run(state: Journey) -> bool:
             elif command == "load":
                 state = journey_store.load(state.save_id)
                 print("Latest autosave loaded. No rewards repeated.")
-            elif command in [str(i) for i in range(1, len(options) + 1)]:
+            elif command in [str(number) for number, _ in options]:
                 candidate = copy.deepcopy(state)
                 candidate.act(int(command))
                 state = journey_store.commit(candidate)

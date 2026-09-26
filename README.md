@@ -50,6 +50,11 @@ Type a displayed number to act. Other commands:
 - `menu` / `quit`: return to character selection or exit.
 
 Information commands redisplay the current choices and never spend a battle turn.
+Completed one-time actions disappear: purchased certificates, owned unique gear,
+finished errands, used merchant wagers and spent companion skills. Repeatable
+repair-kit purchases, navigation and information commands remain. Remaining
+choices keep their original numbers; a missing number is not reassigned to a
+different action. Unaffordable purchases stay visible until actually completed.
 
 ## Saving and the main menu
 

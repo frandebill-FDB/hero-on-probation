@@ -114,3 +114,20 @@ if the upgraded character is deleted. A repeated upgrade loads the existing
 progress instead of resetting it or issuing rewards again.
 
 The player's next playtest is still needed to judge pacing and reward balance.
+
+## Small interface improvement — consumed choices
+
+Menus filter out completed one-time actions using existing flags and inventory,
+without changing the save format. Certificate purchases, already-owned unique
+equipment, completed errand entries, spent merchant wagers and used companion
+skills disappear. Repair kits remain repeatable, and navigation stays available.
+A failed purchase does not consume its option. A banned Pip action is still
+labelled unavailable in wagers; it is a rule restriction, not a consumed skill.
+
+Choice numbers remain stable when a row disappears. For example, after buying a
+certificate the exit still reads `2. Go to the boss's door.` Both rendering and
+input validation use the same available-action list. Entering a removed number
+does not spend gold, take a turn or write a new autosave. Per-journey choices
+return next journey; owned permanent equipment stays hidden. Existing snapshot
+saves immediately use these rules when loaded. Older replay-story compatibility
+keeps its historical numbered decisions unchanged.

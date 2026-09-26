@@ -187,7 +187,9 @@ class JourneyTests(unittest.TestCase):
         self.assertEqual(loaded.battle, state.battle)
         self.assertEqual(loaded.battle["hp"], 7)
         self.assertEqual(loaded.battle["turn"], 2)
-        state = self.act(loaded, 3)
+        with self.assertRaises(ValueError):
+            self.act(loaded, 3)
+        self.assertNotIn(3, dict(loaded.available_options()))
         self.assertEqual(state.battle, loaded.battle)
         self.assertEqual(state.hp, 12)
 
@@ -215,7 +217,9 @@ class JourneyTests(unittest.TestCase):
         self.assertEqual(
             (state.gold, state.stage, state.hp), (15, "shop", state.max_hp)
         )
-        state = self.act(state, 5)
+        with self.assertRaises(ValueError):
+            self.act(state, 5)
+        self.assertNotIn(5, dict(state.available_options()))
         self.assertEqual((state.gold, state.stage), (15, "shop"))
 
     def test_both_merchants_award_exactly_one_payout_and_remain_open(self):
@@ -233,7 +237,10 @@ class JourneyTests(unittest.TestCase):
                 state = self.act(state, action, 1)
                 self.assertEqual((state.stage, state.gold), (merchant, 15))
                 self.assertEqual(state.hp, state.max_hp)
-                state = self.act(store.load(state.save_id), action)
+                state = store.load(state.save_id)
+                with self.assertRaises(ValueError):
+                    self.act(state, action)
+                self.assertNotIn(action, dict(state.available_options()))
                 self.assertEqual(state.gold, 15)
 
     def test_losing_wager_costs_only_stake_and_does_not_end_adventure(self):
@@ -494,7 +501,12 @@ class JourneyTests(unittest.TestCase):
         self.assertEqual(state.data(), before)
 
     def test_side_quests_and_castle_bonus_cannot_repeat_within_journey(self):
-        state = self.act(self.make(), 3, 4, 2, 2, 1, 2, 1, 3, 1, 3, 1)
+        state = self.act(self.make(), 3, 4, 2, 2, 1)
+        with self.assertRaises(ValueError):
+            self.act(state, 2)
+        state = self.act(state, 3, 1)
+        with self.assertRaises(ValueError):
+            self.act(state, 3)
         self.assertEqual(state.gold, 10)  # 3 initial + 4 rats + 3 ghost.
         state = self.act(state, 4, 2, 2)
         self.assertEqual(state.gold, 12)

@@ -334,7 +334,7 @@ class Journey:
         else:
             battle["turn"] += 1
 
-    def view(self) -> tuple[str, list[str]]:
+    def _scene_view(self) -> tuple[str, list[str]]:
         """Return only presentation; rendering never executes a game event."""
         title, boss, parcel, town, enemy = self.job
         wager = (
@@ -466,6 +466,43 @@ class Journey:
             )
         return menus[self.stage]
 
+    def available_options(self) -> list[tuple[int, str]]:
+        """Hide consumed one-time actions, keeping stable numbers for safe input."""
+        hidden = set()
+        if self.stage == "certificate":
+            if "certificate" in self.flags:
+                hidden.add(1)
+            if "wager:certificate" in self.flags:
+                hidden.add(3)
+        elif self.stage == "shop":
+            if "Iron Sword" in self.inventory:
+                hidden.add(1)
+            if "Pot Lid" in self.inventory:
+                hidden.add(2)
+            if "wager:shop" in self.flags:
+                hidden.add(5)
+        elif self.stage == "town":
+            if "rats" in self.flags:
+                hidden.add(2)
+            if "ghost" in self.flags:
+                hidden.add(3)
+        elif self.stage in ("rats", "ghost") and self.stage in self.flags:
+            hidden.update((1, 2))
+        elif self.stage == "battle" and self.battle["companion_used"]:
+            hidden.add(3)
+        return [
+            (number, label)
+            for number, label in enumerate(self._scene_view()[1], 1)
+            if number not in hidden
+        ]
+
+    def view(self) -> tuple[str, list[str]]:
+        """Read-only visible text; use available_options for stable input numbers."""
+        prompt = self._scene_view()[0]
+        if self.stage in ("rats", "ghost") and self.stage in self.flags:
+            prompt = "This errand is complete. No paperwork remains. A miracle."
+        return prompt, [label for _, label in self.available_options()]
+
     def deliver(self):
         if self.parcel == "damaged" and self.inventory.get("Repair Kit", 0):
             self.inventory["Repair Kit"] -= 1
@@ -486,7 +523,9 @@ class Journey:
 
     def act(self, action: int):
         """Apply one numbered decision, including all associated rewards."""
-        if type(action) is not int or not 1 <= action <= len(self.view()[1]):
+        if type(action) is not int or action not in {
+            number for number, _ in self.available_options()
+        }:
             raise ValueError("Choose a displayed number.")
         stage = self.stage
         if stage == "battle":
