@@ -23,6 +23,8 @@ JOBS = (
 )
 GEAR = {"Wooden Sword", "Iron Sword", "Borrowed Coat", "Pot Lid", "Repair Kit"}
 STAGES = {
+    "dispatch",
+    "travel_companion",
     "guild",
     "parcel",
     "companion",
@@ -195,8 +197,10 @@ class Journey:
         if self.ending != "CLOCKED OUT":
             self.run += 1
         self.inventory = {k: v for k, v in self.inventory.items() if k in GEAR}
-        self.companion, self.parcel, self.ending = "", "intact", ""
-        self.stage, self.battle = "guild", None
+        self.parcel, self.ending = "intact", ""
+        self.stage, self.battle = "dispatch" if self.run >= 2 else "guild", None
+        if self.run == 1:
+            self.companion = ""
         self.quests, self.flags, self.rewards = {}, [], []
         self.hp = self.max_hp
         print(f"Journey {self.run}: {self.job[0]}. Same hero. Another invoice.")
@@ -222,6 +226,14 @@ class Journey:
             "return_to": return_to,
         }
         self.stage = "battle"
+
+    def travel(self):
+        """Return to express-route choices without resetting events or rewards."""
+        if "express" not in self.flags or self.stage in ("battle", "ending"):
+            raise ValueError(
+                "Travel is available on an express journey outside combat and endings."
+            )
+        self.stage = "dispatch"
 
     def wager(self, shop: str):
         if self.run < 2:
@@ -290,6 +302,12 @@ class Journey:
     def battle_turn(self, action: int):
         battle = self.battle
         wager = battle["kind"] in ("shop", "certificate")
+        if action == 5:
+            print('You: "I concede." Opponent: "Finally. A meeting that ends early."')
+            if not wager:
+                self.hp = 0
+            self.settle_battle("defeat")
+            return
         if action == 4:
             self.settle_battle("retreat")
             return
@@ -345,6 +363,25 @@ class Journey:
             else []
         )
         menus = {
+            "dispatch": (
+                f"{title} | Travel desk: {boss} wants one {parcel}. Five gold if intact.\n"
+                f"Companion: {self.companion or 'not selected'}. The briefing has been declared an email.",
+                [
+                    "Express delivery: go straight to the boss's door (no skipped-event rewards).",
+                    "Visit town: shops and optional errands.",
+                    "Visit the crossing.",
+                    "Visit the certificate clerk.",
+                    "Choose or change companion.",
+                    "Replay the full introduction and route.",
+                ],
+            ),
+            "travel_companion": (
+                "Choose your travelling colleague. No interview required.",
+                [
+                    "Pip: bread magic, including the parcel.",
+                    "Bea: counterattack and block.",
+                ],
+            ),
             "guild": (
                 f"{title} | Guild desk",
                 ["Read the contract.", "Check your pockets.", "Ring the service bell."],
@@ -462,6 +499,9 @@ class Journey:
                     "Retreat (wager stake is forfeited)."
                     if b["kind"] in ("shop", "certificate")
                     else "Retreat.",
+                    "Concede defeat (lose the 5-gold stake; shop stays open)."
+                    if b["kind"] in ("shop", "certificate")
+                    else "Concede defeat (ends this journey; keeps your character).",
                 ],
             )
         return menus[self.stage]
@@ -469,7 +509,12 @@ class Journey:
     def available_options(self) -> list[tuple[int, str]]:
         """Hide consumed one-time actions, keeping stable numbers for safe input."""
         hidden = set()
-        if self.stage == "certificate":
+        if self.stage == "dispatch":
+            if not self.companion:
+                hidden.update((1, 2, 3, 4))
+            if "express" in self.flags:
+                hidden.add(6)
+        elif self.stage == "certificate":
             if "certificate" in self.flags:
                 hidden.add(1)
             if "wager:certificate" in self.flags:
@@ -521,6 +566,14 @@ class Journey:
             }[self.parcel]
         )
 
+    def arrive_castle(self):
+        """Pay only an earned reference bonus, once, on either route."""
+        if "Ghost Reference" in self.inventory and "castle_bonus" not in self.flags:
+            self.gold += 2
+            self.flags.append("castle_bonus")
+            print("Ghost reference: +2 gold.")
+        self.stage = "castle"
+
     def act(self, action: int):
         """Apply one numbered decision, including all associated rewards."""
         if type(action) is not int or action not in {
@@ -530,6 +583,24 @@ class Journey:
         stage = self.stage
         if stage == "battle":
             self.battle_turn(action)
+        elif stage == "dispatch":
+            if action == 5:
+                self.stage = "travel_companion"
+            elif action == 6:
+                self.stage, self.companion = "guild", ""
+            else:
+                if "express" not in self.flags:
+                    self.flags.append("express")
+                self.quests["Delivery"] = "Active"
+                self.stage = ("castle", "town", "bridge", "certificate")[action - 1]
+                if action == 1:
+                    self.arrive_castle()
+                print(
+                    "Route selected. No skipped battles or errands are counted as completed."
+                )
+        elif stage == "travel_companion":
+            self.companion = "Pip" if action == 1 else "Bea"
+            self.stage = "dispatch"
         elif stage == "guild":
             if action == 3:
                 self.stage = "parcel"
@@ -609,7 +680,7 @@ class Journey:
                 if self.companion == "Pip":
                     self.parcel = "bread"
                     print(
-                        "Pip pays with the parcel's bread handle. No combat victory claimed."
+                        "Pip turns the parcel into bread and pays with a slice. No combat victory claimed."
                     )
                 else:
                     print("Bea points out the ankle-deep water. You walk around.")
@@ -628,14 +699,7 @@ class Journey:
                     self.inventory["Hero Certificate"] = 1
                     print("The certificate reads: PARTICIPATED.")
             else:
-                if (
-                    "Ghost Reference" in self.inventory
-                    and "castle_bonus" not in self.flags
-                ):
-                    self.gold += 2
-                    self.flags.append("castle_bonus")
-                    print("Ghost reference: +2 gold.")
-                self.stage = "castle"
+                self.arrive_castle()
         elif stage == "castle":
             if action == 1:
                 self.deliver()

@@ -2,9 +2,22 @@
 
 ## Current game (New game)
 
-This edition has the eight outcomes below plus **HONEST VICTORY** (defeat the
-boss with ordinary combat; EARNED THE HARD WAY; 8 gold) and **PAID PERFORMANCE**
-(journey 2+, pay the displayed bribe; PAY-TO-WIN HERO; no delivery pay or boss XP).
+The current game has ten outcomes. The in-game Hall of Fame hides undiscovered
+names; this document intentionally reveals all of them.
+
+| Ending | How to reach it | Achievement | Gold paid by outcome |
+| --- | --- | --- | --- |
+| CLOCKED OUT | Refuse the guild job; use full introduction on later journeys. | ANY% HERO | 0 |
+| DELIVERY COMPLETE | Deliver an intact parcel. | DELIVERY HERO | 5 |
+| DISH DUTY | Deliver a damaged parcel with no repair kit; defending without a Pot Lid damages it. | LORD OF THE RINSE | 0 |
+| ACCIDENTAL CATERING | Use Pip at the crossing, then deliver the bread parcel. | BREADWINNER | 5 |
+| TOLL TAKEN | Lose or concede the crossing fight. | SPOON-FED DEFEAT | 0 |
+| BOSS DEFEAT | Lose or concede a boss fight. | ONE-HIT INTERN | 0 |
+| TACTICAL RETREAT | Enter the boss fight, then retreat. | CAREER PRESERVATION | 0 |
+| THE FINAL LOAF | Enter a boss fight with Pip and ask for help. | BREAD OF THE REALM | 0 |
+| HONEST VICTORY | Defeat the boss through ordinary combat after gaining levels. | EARNED THE HARD WAY | 8 |
+| PAID PERFORMANCE | From journey 2, pay the displayed boss bribe. | PAY-TO-WIN HERO | 0; bribe is deducted |
+
 All outcomes allow another journey using the same character. Refusal retries
 the current journey instead of unlocking the next one. See
 [progression rules](progression.md) for XP, growth, recurring rewards and wagers.
@@ -15,6 +28,13 @@ both the enemy and the delivery parcel into bread. The three rotating jobs use
 a pan, curtains and a resignation form; their outcome structure stays the same.
 This mode autosaves every decision, including final settlement. There is no
 rollback checkpoint: loading cannot undo a defeat or a wager.
+
+From journey 2 the travel desk can skip straight to the boss without awarding
+skipped-event rewards. The crossing, shops, side errands and full introduction
+remain optional routes. Concession makes the two combat-failure endings reachable
+at any level; it gives defeat XP, not victory XP. A merchant concession is not a
+final ending and simply forfeits the 5-gold stake. BREAD OVER BRAWN and HOSTILE
+NEGOTIATION are additional achievements, not two more endings.
 
 ## Older combat saves (compatibility reference)
 
@@ -37,7 +57,7 @@ These are delivery rewards, not final wallet balances: starting gold, side
 quests, purchases, tolls and the ghost's castle bonus can change the total.
 Non-delivery endings keep that earlier balance rather than confiscating it.
 
-## The new punchlines
+### Historical punchlines (older combat saves)
 
 - **SPOON-FED DEFEAT:** "You lost to cutlery. The guild has requested its sword back."
   The slime puts the hero in the recovery position and prints a defeat receipt.
@@ -49,7 +69,7 @@ Non-delivery endings keep that earlier balance rather than confiscating it.
   The dragon loaf still wears an apron. Dinner is enormous; payment is pending
   because nobody can sign the receipt.
 
-## Important distinctions
+### Historical rules (older combat saves only)
 
 The Demon King has 9999 HP, 999 attack and 99 defence. No available weapon or
 Bea attack can damage him. Bea can block one turn, but cannot win the fight.

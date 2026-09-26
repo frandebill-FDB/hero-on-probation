@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from uuid import uuid4
 
 from hero_on_probation import saves
+from hero_on_probation.collection import show_collection
 from hero_on_probation.journey import GEAR, Journey
 
 
@@ -238,9 +239,10 @@ def honours() -> list[dict]:
         return [dict(row, record=json.loads(row["record"])) for row in rows]
 
 
-def show_honours():
+def show_honours(show_hints=False):
     print("\nHALL OF FAME | Local records across characters")
     records = honours()
+    show_collection((row["title"] for row in records), show_hints)
     if not records:
         print("No achievements recorded yet. The trophy cleaner is on probation too.")
     for row in records:

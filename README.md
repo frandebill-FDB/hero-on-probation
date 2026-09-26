@@ -1,8 +1,9 @@
 # Hero on Probation
 
 A short English-language comic fantasy RPG about questionable heroes and
-ordinary deliveries. Keep the same character across brief journeys, grow stronger,
-and build a record in the Hall of Fame.
+ordinary deliveries. Collect funny endings, keep the same character across brief
+journeys, and enjoy getting absurdly stronger. This is a light collection game,
+not a tightly balanced combat challenge.
 
 ## Install and run
 
@@ -34,8 +35,16 @@ Ring the guild bell, accept the delivery and recruit Pip or Bea. Explore town
 or go straight to the crossing, then deliver the parcel or challenge the boss.
 The numbered ending menu offers another journey with the same character.
 Levels, XP, money, equipment, unused repair kits and achievements carry over.
-Health is restored; task items and local quest progress reset. Choose a companion
-again on each journey.
+Health is restored; task items and local quest progress reset.
+
+From journey 2, a travel desk keeps your previous companion and offers express
+delivery straight to the boss, town errands, the crossing, or the certificate
+clerk. Change your companion or replay the full introduction if you prefer.
+Skipped events grant no XP, gold or quest completion. On an express route,
+`travel` reopens the route choices outside combat and endings; completed errands
+and wager limits remain completed. Full-introduction replay is offered only
+before starting that delivery, so it cannot reset the current job's progress.
+The first journey (including retries after refusing its job) keeps the introduction.
 
 Three short jobs rotate through the same structure: return a frying pan to the
 Demon King, bring blackout curtains to Count Snooze, and deliver a resignation
@@ -44,7 +53,9 @@ form to the Lich Manager. There is no expanding world map or random grinding.
 Type a displayed number to act. Other commands:
 
 - `status`, `bag`, `quests`, `journal`, `achievements`: inspect your character.
-- `hall`: show achievement records across journey characters.
+- `hall`: show the ending collection and achievement records across characters.
+- `hints`: opt in to clues for undiscovered endings (also works in the main menu).
+- `travel`: revisit express-route choices outside battles and endings.
 - `back` or Enter: redisplay the current options, **not undo** a decision.
 - `save` / `load`: reload the latest automatic snapshot.
 - `menu` / `quit`: return to character selection or exit.
@@ -111,9 +122,14 @@ into bread. Ordinary attacks can defeat a boss after sufficient growth.
 
 From journey 2, both the equipment shopkeeper and certificate clerk offer an
 optional 5-gold wager: win receives 10 gold total; defeat or retreat loses the
-stake. Each merchant accepts one wager per journey. Pip's bread spell is banned;
+stake. Conceding also forfeits that stake. Each merchant accepts one wager per journey. Pip's bread spell is banned;
 Bea is allowed. Afterwards health is restored and the shop stays open.
 A displayed-price boss bribe is also available from journey 2.
+
+Combat option **5. Concede defeat** lets even a very strong hero collect a
+crossing or boss defeat ending. It awards the normal defeat/first-achievement
+XP, not victory rewards. Conceding a merchant wager only loses the stake and
+returns to the shop. Retreat remains a different action and outcome.
 
 <details>
 <summary>Ending and reward spoilers</summary>
@@ -136,7 +152,12 @@ Full rules: [progression](docs/progression.md) and [ending reference](docs/endin
 
 ## Hall of Fame
 
-Main-menu option 3 shows each character's recorded achievement, first-earned UTC
+Main-menu option 3 starts with a **0–10 ending collection** across local characters.
+Discovered endings show their names and jokes; undiscovered ones display `???`.
+Type `hints` only if you want clues. Duplicate character records count once toward
+the collection, and the two extra combat achievements are not extra endings.
+
+The records below show each character's recorded achievement, first-earned UTC
 timestamp, full save ID, character name, first-earned journey/level and count.
 Repeating an achievement keeps its original timestamp. Different characters
 have separate records. Deleted characters remain identified in the hall.
@@ -156,6 +177,7 @@ A configured workflow is not proof that a particular unpushed revision passed.
 
 - `journey.py`: serializable state, growth, scenes and turn-based transitions.
 - `journey_store.py`: SQLite transactions, optimistic revisions, archive/restore and honours.
+- `collection.py`: read-only collection progress and optional spoiler-safe clues.
 - `journey_cli.py`: input, information views and automatic persistence.
 - `menu.py`: one main menu, save management and automatic older-save upgrades.
 - `models.py`, `game.py`, `town.py`, `combat.py`, `session.py`, `saves.py`:

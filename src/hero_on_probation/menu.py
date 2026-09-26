@@ -147,6 +147,7 @@ def start_menu() -> Session | Journey | None:
         print("3. Hall of Fame")
         print("4. Manage saves")
         print("5. Quit")
+        print("Optional: hints — clues for undiscovered endings.")
         action = input("> ").strip().lower()
         try:
             if action in ("5", "quit"):
@@ -161,6 +162,8 @@ def start_menu() -> Session | Journey | None:
                     return resume_character(saved)
             elif action == "3":
                 journey_store.show_honours()
+            elif action == "hints":
+                journey_store.show_honours(show_hints=True)
             elif action == "4":
                 selected = manage_saves()
                 if selected is not None:

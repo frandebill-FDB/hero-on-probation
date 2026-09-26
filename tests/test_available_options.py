@@ -95,7 +95,7 @@ class AvailableOptionsTests(unittest.TestCase):
         state.companion = "Bea"
         state = self.act(state, 3)
         state = self.act(state, 3)
-        self.assertEqual(set(dict(state.available_options())), {1, 2, 4})
+        self.assertEqual(set(dict(state.available_options())), {1, 2, 4, 5})
         loaded = store.load(state.save_id)
         before = loaded.data()
         with self.assertRaises(ValueError):

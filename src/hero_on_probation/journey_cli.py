@@ -21,8 +21,10 @@ def run(state: Journey) -> bool:
         for number, option in options:
             print(f"  {number}. {option}")
         print(
-            "Commands: status | bag | quests | journal | achievements | hall | save | load | back | menu | quit"
+            "Commands: status | bag | quests | journal | achievements | hall | hints | save | load | back | menu | quit"
         )
+        if "express" in state.flags and state.stage not in ("battle", "ending"):
+            print("travel: return to route choices (no progress reset).")
         try:
             command = input("> ").strip().lower()
             if command == "quit":
@@ -56,9 +58,15 @@ def run(state: Journey) -> bool:
                 )
             elif command == "hall":
                 journey_store.show_honours()
+            elif command == "hints":
+                journey_store.show_honours(show_hints=True)
+            elif command == "travel":
+                candidate = copy.deepcopy(state)
+                candidate.travel()
+                state = journey_store.commit(candidate)
             elif command == "help":
                 print(
-                    "Numbers act. Information commands and back do not take a turn. Every action saves automatically. load cannot undo a wager or reward."
+                    "Numbers act. Information commands and back do not take a turn. Every action saves automatically. load cannot undo a wager or reward. Use hints for optional ending clues; travel returns to express-route choices outside combat."
                 )
             elif command == "save":
                 # No stale in-memory copy may overwrite a newer committed action.

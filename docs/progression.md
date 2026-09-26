@@ -1,4 +1,4 @@
-# Continuing journeys — implemented design, 2026-09-24
+# Continuing journeys — implemented design, updated 2026-09-26
 
 ## Confirmed choices
 
@@ -6,6 +6,10 @@ I chose to let a sufficiently strong character defeat the boss through normal
 combat, retain levels, gold and equipment between journeys, and prohibit Pip's
 bread magic in merchant wagers. The implementation keeps each journey short,
 using three rotating jobs rather than adding a large map or skill tree.
+
+My later review clarified the goal: a light game for collecting funny endings.
+I liked the first bread-boss level jump; repeating the route was the main problem.
+The shortcut's power and the fixed enemy values are deliberately retained.
 
 The main menu has one New game entry and one Continue game entry. Older unfinished
 saves retain their current scenes and can continue into the growth system at
@@ -54,8 +58,28 @@ The current stage, enemies, combat turn and companion action availability are
 saved as data; loading does not rerun previous scenes.
 
 Retain: identity, level, XP, gold, equipment, owned gear, unused repair kits,
-achievement records and ending journal. Reset: companion selection, current
+achievement records, ending journal and (from journey 2) the previous companion. Reset: current
 parcel, quests, local references/certificates, wager participation and run rewards.
+
+## Express replay
+
+After a non-refusal ending, Continue opens a travel desk instead of repeating
+the guild briefing. Choose the boss's door directly, town, crossing or certificate
+clerk. Choosing a destination accepts the delivery but completes no skipped
+events and grants no skipped rewards. A genuinely earned Ghost Reference still
+pays its arrival bonus once, through either route.
+
+The desk also offers companion changes and the full original introduction.
+Without a companion, select one before choosing an express destination. The
+full introduction clears the companion selection but keeps permanent progress;
+it is available only before accepting this run's delivery. The first journey
+and first-journey refusal retries continue using the original introduction.
+
+On express routes, `travel` returns to the desk without resetting inventory,
+quests, parcel condition, rewards or spent wagers. It is unavailable during
+battles and after endings. These transitions autosave like every other decision.
+No snapshot fields were added: new stages and the existing flags store the route.
+Existing snapshots resume their saved scene; the next eligible journey uses the desk.
 
 ## Battle balance
 
@@ -65,6 +89,13 @@ protection for that turn. Bea gives one counterattack (+2 damage) and full enemy
 turn block per battle. Pip instantly transforms both opponent and task parcel.
 A repair kit fixes damage but not bread. Retreat from the crossing keeps damage
 and returns to its menu; retreat from the boss is a terminal outcome.
+
+Combat choice 5 concedes defeat without waiting to lose HP naturally. Against
+the guard or boss it sets HP to zero and settles the corresponding failure ending,
+with the existing defeat XP and first-achievement bonus, never victory rewards.
+It preserves the character for the next journey. Against merchants it forfeits
+the stake, awards no XP or achievement, restores HP and returns to the shop.
+The label states the consequence before selection. Retreat stays distinct.
 
 Continuing bosses have 120/130/140 HP, 18/19/20 attack and 8 defence across the
 three variants. These fixed values deliberately replace the classic 9999/999/99
@@ -112,6 +143,14 @@ unknown, not replaced with the import time. The source JSON is left untouched.
 Its ID is marked by the database entry, so the backup is not listed again, even
 if the upgraded character is deleted. A repeated upgrade loads the existing
 progress instead of resetting it or issuing rewards again.
+
+The hall now begins with a collection of the ten endings across local characters,
+including retained records of archived characters. Discovered rows show the
+ending name, achievement and joke. Undiscovered rows show `???`; `hints` in the
+main menu or adventure opts into clues without revealing their titles. The
+two non-ending combat achievements do not increase this ten-ending count.
+Detailed character/save/time records remain below the collection. Viewing either
+version is read-only and does not unlock achievements or alter saved progress.
 
 The player's next playtest is still needed to judge pacing and reward balance.
 

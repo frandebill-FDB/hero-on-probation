@@ -42,6 +42,8 @@ class JourneyTests(unittest.TestCase):
 
     def castle(self, state, companion=1):
         # Guild, accept, companion, skip town, help guard, approach door.
+        if state.stage == "dispatch":
+            state = self.act(state, 6)
         return self.act(state, 3, 4, companion, 4, 2, 2)
 
     def test_new_menu_creates_journey_and_invalid_names_are_retried(self):
@@ -123,7 +125,9 @@ class JourneyTests(unittest.TestCase):
             (state.level, state.xp, state.gold, state.equipment, state.achievements),
             permanent,
         )
-        self.assertEqual((state.run, state.stage, state.hp), (2, "guild", state.max_hp))
+        self.assertEqual(
+            (state.run, state.stage, state.hp), (2, "dispatch", state.max_hp)
+        )
         self.assertNotIn("Ghost Reference", state.inventory)
         self.assertEqual(state.inventory["Repair Kit"], 2)
         self.assertEqual((state.quests, state.flags, state.rewards), ({}, [], []))
@@ -490,7 +494,7 @@ class JourneyTests(unittest.TestCase):
         self.assertNotIn("Choose a displayed number", result.stdout)
         with patch.object(saves, "SAVE_DIR", self.root / "saves"):
             saved = store.list_journeys()[0]
-            self.assertEqual((saved.level, saved.run, saved.stage), (5, 2, "guild"))
+            self.assertEqual((saved.level, saved.run, saved.stage), (5, 2, "dispatch"))
 
     def test_readonly_rendering_and_information_do_not_grant_xp(self):
         state = self.act(self.make(), 3, 4, 1, 4, 3)
