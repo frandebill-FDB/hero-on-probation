@@ -24,7 +24,13 @@ results are evidence for their named revision, not for later code changes.
   line-length limit. Earlier overlong source lines have been split.
 - [x] Syntax-tree comparison confirms that source changes affect only two game
   messages and the package description; rewrapping leaves gameplay logic intact.
-- [ ] Cleanup revision uploaded and verified by GitHub Actions.
+- [x] Code/style cleanup revision `7effb5e` uploaded and passed
+  [GitHub Actions on Python 3.10 and 3.12](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/36242984719),
+  including installation, all 140 tests, module launch and stricter style checks.
+
+These links identify the verified code revisions. Subsequent documentation-only
+updates can also be checked in the repository's
+[Actions history](https://github.com/frandebill-FDB/hero-on-probation/actions/workflows/test.yml).
 
 ## Student's remaining submission steps
 
