@@ -21,7 +21,8 @@ def run(state: Journey) -> bool:
         for number, option in options:
             print(f"  {number}. {option}")
         print(
-            "Commands: status | bag | quests | journal | achievements | hall | hints | save | load | back | menu | quit"
+            "Commands: status | bag | quests | journal | achievements | hall | "
+            "hints | save | load | back | menu | quit"
         )
         if "express" in state.flags and state.stage not in ("battle", "ending"):
             print("travel: return to route choices (no progress reset).")
@@ -66,7 +67,11 @@ def run(state: Journey) -> bool:
                 state = journey_store.commit(candidate)
             elif command == "help":
                 print(
-                    "Numbers act. Information commands and back do not take a turn. Every action saves automatically. load cannot undo a wager or reward. Use hints for optional ending clues; travel returns to express-route choices outside combat."
+                    "Numbers act. Information commands and back do not take a turn. "
+                    "Every action saves automatically. "
+                    "load cannot undo a wager or reward. "
+                    "Use hints for optional ending clues; "
+                    "travel returns to express-route choices outside combat."
                 )
             elif command == "save":
                 # No stale in-memory copy may overwrite a newer committed action.
@@ -83,7 +88,8 @@ def run(state: Journey) -> bool:
                 print("Choose a displayed number, or use help / back / menu / quit.")
         except (OSError, ValueError, sqlite3.Error) as error:
             print(
-                f"Could not complete action: {error}. No new transition was accepted; use load to check saved progress."
+                f"Could not complete action: {error}. "
+                "No new transition was accepted; use load to check saved progress."
             )
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye! Completed decisions remain saved.")

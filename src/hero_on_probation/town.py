@@ -111,7 +111,8 @@ def ghost(hero: Hero, choose: Choose) -> None:
     if answer == 2 and hero.companion == "Pip":
         hero.inventory["Bread Resignation"] = 1
         print(
-            "Pip turns the form into toast. HR accepts it as written notice with catering."
+            "Pip turns the form into toast. "
+            "HR accepts it as written notice with catering."
         )
     elif answer == 2:
         print('Bea: "I specialise in leaving. Your notice period ended in 1996."')

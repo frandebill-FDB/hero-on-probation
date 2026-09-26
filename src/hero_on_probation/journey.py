@@ -141,7 +141,8 @@ class Journey:
             if self.hp:
                 self.hp += 8 * (self.level - old_level)
             print(
-                f"LEVEL UP: {old_level} -> {self.level} | HP {self.max_hp} | Attack {self.attack} | Defence {self.defence}"
+                f"LEVEL UP: {old_level} -> {self.level} | HP {self.max_hp} | "
+                f"Attack {self.attack} | Defence {self.defence}"
             )
 
     def unlock(self, title: str, description: str, bonus: int = 100):
@@ -187,7 +188,8 @@ class Journey:
         )
         self.journal.append(f"Journey {self.run}: {ending}.")
         print(
-            f"Settlement | Level {self.level} | XP {self.xp}/{100 * self.level} | Gold {self.gold} | HP {self.hp}/{self.max_hp}"
+            f"Settlement | Level {self.level} | XP {self.xp}/{100 * self.level} | "
+            f"Gold {self.gold} | HP {self.hp}/{self.max_hp}"
         )
 
     def next_run(self):
@@ -295,7 +297,8 @@ class Journey:
         elif result == "victory":
             self.gold += 8
             print(
-                'Boss: "A real defeat? I did not budget for character development." Reward: 8 gold.'
+                'Boss: "A real defeat? I did not budget for character development." '
+                "Reward: 8 gold."
             )
         self.finish(endings[result])
 
@@ -357,17 +360,21 @@ class Journey:
         title, boss, parcel, town, enemy = self.job
         wager = (
             [
-                "Challenge the merchant: stake 5 gold; win receives 10, lose/retreat forfeits 5. No bread magic."
+                "Challenge the merchant: stake 5 gold; win receives 10, "
+                "lose/retreat forfeits 5. No bread magic."
             ]
             if self.run >= 2
             else []
         )
         menus = {
             "dispatch": (
-                f"{title} | Travel desk: {boss} wants one {parcel}. Five gold if intact.\n"
-                f"Companion: {self.companion or 'not selected'}. The briefing has been declared an email.",
+                f"{title} | Travel desk: deliver {boss}'s {parcel}. "
+                "Five gold if intact.\n"
+                f"Companion: {self.companion or 'not selected'}. "
+                "The briefing has been declared an email.",
                 [
-                    "Express delivery: go straight to the boss's door (no skipped-event rewards).",
+                    "Express delivery: go straight to the boss's door "
+                    "(no skipped-event rewards).",
                     "Visit town: shops and optional errands.",
                     "Visit the crossing.",
                     "Visit the certificate clerk.",
@@ -459,14 +466,16 @@ class Journey:
                 ]
                 + (
                     [
-                        f"Offer {self.bribe} gold to stage a defeat (no delivery pay or boss XP)."
+                        f"Offer {self.bribe} gold to stage a defeat "
+                        "(no delivery pay or boss XP)."
                     ]
                     if self.run >= 2
                     else []
                 ),
             ),
             "confirm": (
-                f"{boss}: {120 + (self.run - 1) % 3 * 10} HP. I also have plans for dinner.",
+                f"{boss}: {120 + (self.run - 1) % 3 * 10} HP. "
+                "I also have plans for dinner.",
                 [
                     "Dinner sounds better. Deliver the parcel.",
                     "I insist. Draw your weapon.",
@@ -490,7 +499,8 @@ class Journey:
                 self.companion == "Pip" and b["kind"] in ("shop", "certificate")
             )
             return (
-                f"ROUND {b['turn']} | {b['name']}: {b['hp']}/{b['max_hp']} HP | Defence {b['armour']} | Next attack {incoming}",
+                f"ROUND {b['turn']} | {b['name']}: {b['hp']}/{b['max_hp']} HP | "
+                f"Defence {b['armour']} | Next attack {incoming}",
                 [
                     f"Attack ({self.attack} before enemy defence).",
                     "Defend (+4 protection this turn).",
@@ -596,7 +606,8 @@ class Journey:
                 if action == 1:
                     self.arrive_castle()
                 print(
-                    "Route selected. No skipped battles or errands are counted as completed."
+                    "Route selected. No skipped battles or errands "
+                    "are counted as completed."
                 )
         elif stage == "travel_companion":
             self.companion = "Pip" if action == 1 else "Bea"
@@ -615,7 +626,8 @@ class Journey:
             else:
                 print(
                     (
-                        f"One {self.job[2]}. Do not test it on the receptionist.",
+                        f"Contents: {self.job[2]}. "
+                        "Please leave the receptionist out of product testing.",
                         f"For {self.job[1]}. Fighting is not in the delivery contract.",
                         "Intact: five gold. Damaged: washing-up. Bread: catering.",
                     )[action - 1]
@@ -680,7 +692,8 @@ class Journey:
                 if self.companion == "Pip":
                     self.parcel = "bread"
                     print(
-                        "Pip turns the parcel into bread and pays with a slice. No combat victory claimed."
+                        "Pip turns the parcel into bread and pays with a slice. "
+                        "No combat victory claimed."
                     )
                 else:
                     print("Bea points out the ankle-deep water. You walk around.")
@@ -710,7 +723,8 @@ class Journey:
             else:
                 self.gold -= self.bribe
                 print(
-                    'Boss: "Aaargh. Please leave a five-star review." No delivery pay. No combat XP.'
+                    'Boss: "Aaargh. Please leave a five-star review." '
+                    "No delivery pay. No combat XP."
                 )
                 self.finish("PAID PERFORMANCE")
         elif stage == "confirm":
@@ -725,7 +739,14 @@ class Journey:
                 print(self.status())
 
     def status(self) -> str:
-        return f"Hero: {self.name} | Journey {self.run} | Level {self.level} | XP {self.xp}/{100 * self.level}\nHP {self.hp}/{self.max_hp} | Attack {self.attack} | Defence {self.defence} | Gold {self.gold}\nCompanion: {self.companion or 'Solo'} | Parcel: {self.parcel} | Equipment: {self.equipment}"
+        return (
+            f"Hero: {self.name} | Journey {self.run} | Level {self.level} | "
+            f"XP {self.xp}/{100 * self.level}\n"
+            f"HP {self.hp}/{self.max_hp} | Attack {self.attack} | "
+            f"Defence {self.defence} | Gold {self.gold}\n"
+            f"Companion: {self.companion or 'Solo'} | Parcel: {self.parcel} | "
+            f"Equipment: {self.equipment}"
+        )
 
     def data(self):
         return asdict(self)

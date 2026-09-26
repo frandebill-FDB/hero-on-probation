@@ -3,7 +3,9 @@
 from hero_on_probation.journey import ENDINGS
 
 HINTS = {
-    "CLOCKED OUT": "The guild's offer is not compulsory. Revisit the full introduction.",
+    "CLOCKED OUT": (
+        "The guild's offer is not compulsory. Revisit the full introduction."
+    ),
     "DELIVERY COMPLETE": "Sometimes doing exactly the job is enough.",
     "DISH DUTY": "An unshielded parcel can block a hit. Leave repair kits at the shop.",
     "ACCIDENTAL CATERING": "Pip can change what you deliver at the crossing.",

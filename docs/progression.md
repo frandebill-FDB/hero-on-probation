@@ -152,7 +152,8 @@ two non-ending combat achievements do not increase this ten-ending count.
 Detailed character/save/time records remain below the collection. Viewing either
 version is read-only and does not unlock achievements or alter saved progress.
 
-The player's next playtest is still needed to judge pacing and reward balance.
+The author reported a playtest without encountering bugs on 2026-09-26.
+This does not imply exhaustive coverage of every path or a perfectly balanced game.
 
 ## Small interface improvement — consumed choices
 

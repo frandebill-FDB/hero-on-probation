@@ -36,7 +36,8 @@ class Session:
         hero = self.hero
         if text == "status":
             print(
-                f"Hero: {hero.name} | Gold: {hero.gold} | Companion: {hero.companion or 'None'}"
+                f"Hero: {hero.name} | Gold: {hero.gold} | "
+                f"Companion: {hero.companion or 'None'}"
             )
             for slot, item in hero.equipment.items():
                 print(f"{slot}: {item}")
@@ -75,7 +76,8 @@ class Session:
                 )
             )
             print(
-                f"Saved {hero.name} at this choice to {path} (replaces this character's slot)."
+                f"Saved {hero.name} at this choice to {path} "
+                "(replaces this character's slot)."
             )
         elif text == "load":
             saved = saves.read_save(self.save_id)

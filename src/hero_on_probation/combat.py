@@ -76,7 +76,8 @@ def fight(hero: Hero, enemy: Enemy, choose: Choose) -> str:
                     f"Pip waves his wand. {enemy.name} becomes a very surprised loaf."
                 )
                 print(
-                    'Your pan smells freshly baked. Pip: "Good news: no fight. Bad news: no frying."'
+                    'Your pan smells freshly baked. Pip: "Good news: no fight. '
+                    'Bad news: no frying."'
                 )
                 hero.journal.append(
                     f"Pip transformed {enemy.name} and the quest pan into bread."

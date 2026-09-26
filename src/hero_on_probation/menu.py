@@ -77,7 +77,8 @@ def resume_character(saved: saves.SavedGame | Journey) -> Session | Journey:
     upgraded = journey_store.upgrade(saved, hero)
     print(f"Last ending: {hero.ending}. {saved.name} can now continue the journey.")
     print(
-        "Your name, money, equipment and achievements are kept. The older save file remains as a backup."
+        "Your name, money, equipment and achievements are kept. "
+        "The older save file remains as a backup."
     )
     return upgraded
 
@@ -109,7 +110,8 @@ def manage_saves() -> Session | Journey | None:
                 if isinstance(saved, Journey):
                     journey_store.archive(saved.save_id)
                     print(
-                        "Character archived, not erased. Use Restore here to recover it. Honour records remain."
+                        "Character archived, not erased. "
+                        "Use Restore here to recover it. Honour records remain."
                     )
                 else:
                     destination = saves.archive_save(saved.save_id)
@@ -123,7 +125,8 @@ def manage_saves() -> Session | Journey | None:
                 continue
             if action == "3":
                 print(
-                    "Importing saved progress from saves/adventure-v3.json. The original file is kept."
+                    "Importing saved progress from saves/adventure-v3.json. "
+                    "The original file is kept."
                 )
                 choices = saves.legacy_choices()
                 validate_replay(choices, 1)
@@ -191,7 +194,8 @@ def completed_classic_hero(saved: saves.SavedGame) -> Hero:
                 game.play_adventure(trial.hero)
             except game.ReplayComplete:
                 raise IncompleteAdventure(
-                    "Finish the current adventure before continuing to the next journey."
+                    "Finish the current adventure "
+                    "before continuing to the next journey."
                 ) from None
         if not trial.hero.ending:
             raise IncompleteAdventure("The saved adventure is not finished.")

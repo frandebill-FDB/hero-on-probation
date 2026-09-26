@@ -43,7 +43,8 @@ def show_choice(prompt: str, options: list[str]) -> None:
     """Redisplay the current decision without running scene or battle logic."""
     print(
         f"\n[Hero: {session.hero.name} | Gold: {session.hero.gold} | "
-        f"HP: {session.hero.hp}/{session.hero.max_hp} | Companion: {session.hero.companion or 'Solo'}]"
+        f"HP: {session.hero.hp}/{session.hero.max_hp} | "
+        f"Companion: {session.hero.companion or 'Solo'}]"
     )
     print(prompt)
     for number, option in enumerate(options, start=1):
@@ -87,7 +88,8 @@ def choose(prompt: str, options: list[str]) -> int:
             session.history.append(int(answer))
             return int(answer)
         print(
-            f"Enter a number from 1 to {len(options)}, or use back / save / load / help / menu / quit."
+            f"Enter a number from 1 to {len(options)}, "
+            "or use back / save / load / help / menu / quit."
         )
 
 
@@ -145,7 +147,10 @@ def guild(hero: Hero) -> bool:
         answers = {
             1: 'Inside is a frying pan. "Please do not test it on my desk."',
             2: 'The label says DEMON KING. "Home delivery. No boss fight required."',
-            3: '"Bring it back intact for five gold. Dent it, and you wash his dishes."',
+            3: (
+                '"Bring it back intact for five gold. '
+                'Dent it, and you wash his dishes."'
+            ),
         }
         print(answers[action])
         hero.journal.append(f"Delivery question: {answers[action]}")
@@ -262,7 +267,8 @@ def bridge(hero: Hero) -> bool:
                     "You solved a combat encounter with a bakery.",
                 )
                 print(
-                    'The bun squeaks, "The toll still applies!" It cannot hold its spoon.'
+                    'The bun squeaks, "The toll still applies!" '
+                    "It cannot hold its spoon."
                 )
             else:
                 print('Slime: "You win. Please rate your violence five stars."')
@@ -310,7 +316,8 @@ def bridge(hero: Hero) -> bool:
                 hero.pan = "dented"
                 hero.journal.append("Blocked the spoon. The quest pan is now dented.")
                 print(
-                    "CLANG. The pan dents. The slime declares you too expensive to fight."
+                    "CLANG. The pan dents. "
+                    "The slime declares you too expensive to fight."
                 )
         elif move == 2:
             hero.gold -= 2
@@ -361,7 +368,8 @@ def finish_combat_ending(hero: Hero, ending: str) -> None:
         "BOSS DEFEAT": (
             "ONE-HIT INTERN",
             "Your sword dealt zero damage. Your confidence took 999.",
-            'The dragon flicks you onto the welcome mat. "Delivery attempted," he writes.',
+            "The dragon flicks you onto the welcome mat. "
+            '"Delivery attempted," he writes.',
         ),
         "TACTICAL RETREAT": (
             "CAREER PRESERVATION",
@@ -394,7 +402,8 @@ def finish_combat_ending(hero: Hero, ending: str) -> None:
     unlock_achievement(hero, achievement, description)
     print(f"Hero: {hero.name} | HP: {hero.hp}/{hero.max_hp} | Gold: {hero.gold}")
     print(
-        f"Companion: {hero.companion or 'None'} | Pan: {hero.pan} | Delivery reward: 0 gold"
+        f"Companion: {hero.companion or 'None'} | Pan: {hero.pan} | "
+        "Delivery reward: 0 gold"
     )
 
 
@@ -505,7 +514,8 @@ def arrival(hero: Hero) -> None:
     hero.inventory.pop("Demon King's Pan", None)
     hero.quests["Return the pan"] = "Done"
     hero.journal.append(
-        f"Returned the pan. Ending: {ending}. Reward: {0 if hero.pan == 'dented' else 5} gold."
+        f"Returned the pan. Ending: {ending}. "
+        f"Reward: {0 if hero.pan == 'dented' else 5} gold."
     )
     print(f"Companion: {hero.companion} | Pan: {hero.pan} | Gold: {hero.gold}")
     completed = sum(state == "Done" for state in hero.quests.values())
@@ -526,13 +536,15 @@ def run_session(initial: Session) -> bool:
     global session
     session = initial
     print(
-        "Use numbers, or status / bag / quests / journal / achievements / save / load / menu / quit."
+        "Use numbers, or status / bag / quests / journal / achievements / "
+        "save / load / menu / quit."
     )
     print(f"Playing as {session.hero.name}. Saving affects only this character.")
     if session.rules_version == 1:
         print("Your older save's current story and choices are preserved.")
         print(
-            "After the ending, use next to continue this character's journey with levels."
+            "After the ending, use next to continue "
+            "this character's journey with levels."
         )
     print("Use save before menu or quit to keep your latest progress.")
     while True:
@@ -546,10 +558,14 @@ def run_session(initial: Session) -> bool:
                 session.command("achievements")
             print("Adventure complete. Saving now records this ending.")
             print("Use load to restore your last save, or menu to select a character.")
-            ending_commands = "Commands: status | bag | quests | journal | achievements | save | load | back | next | menu | quit"
+            ending_commands = (
+                "Commands: status | bag | quests | journal | achievements | "
+                "save | load | back | next | menu | quit"
+            )
             print(ending_commands)
             print(
-                "next: continue this character into a new journey, keeping possessions and achievements."
+                "next: continue this character into a new journey, "
+                "keeping possessions and achievements."
             )
             while True:
                 command = input("> ").strip().lower()
@@ -559,7 +575,8 @@ def run_session(initial: Session) -> bool:
                     raise ReturnToMenu
                 if command in ("", "back"):
                     print(
-                        "Adventure complete. Use load for your last save, or menu for character selection."
+                        "Adventure complete. Use load for your last save, "
+                        "or menu for character selection."
                     )
                     print(ending_commands)
                     continue
@@ -576,7 +593,8 @@ def run_session(initial: Session) -> bool:
                         print(ending_commands)
                     else:
                         print(
-                            "Use status, bag, quests, journal, achievements, save, load, menu or quit."
+                            "Use status, bag, quests, journal, achievements, "
+                            "save, load, menu or quit."
                         )
                 except (OSError, ValueError, sqlite3.Error) as error:
                     print(f"Cannot complete command: {error}")

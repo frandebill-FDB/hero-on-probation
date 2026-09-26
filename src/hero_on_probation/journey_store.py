@@ -84,7 +84,8 @@ def list_journeys(include_deleted=False) -> list[Journey]:
 def write_honours(db, state):
     for title, record in state.achievements.items():
         db.execute(
-            "INSERT INTO honours VALUES (?, ?, ?) ON CONFLICT(character_id, title) DO UPDATE SET record=excluded.record",
+            "INSERT INTO honours VALUES (?, ?, ?) "
+            "ON CONFLICT(character_id, title) DO UPDATE SET record=excluded.record",
             (state.save_id, title, json.dumps(record)),
         )
 
@@ -144,7 +145,8 @@ def upgrade(saved: saves.SavedGame, hero) -> Journey:
         try:
             with db:
                 db.execute(
-                    "INSERT INTO characters (id,name,name_key,revision,state) VALUES(?,?,?,?,?)",
+                    "INSERT INTO characters (id,name,name_key,revision,state) "
+                    "VALUES(?,?,?,?,?)",
                     (state.save_id, name, name.casefold(), 0, json.dumps(state.data())),
                 )
                 write_honours(db, state)
@@ -167,7 +169,8 @@ def create(name: str, legacy_hero=None) -> Journey:
         try:
             with db:
                 db.execute(
-                    "INSERT INTO characters (id,name,name_key,revision,state) VALUES(?,?,?,?,?)",
+                    "INSERT INTO characters (id,name,name_key,revision,state) "
+                    "VALUES(?,?,?,?,?)",
                     (state.save_id, name, name.casefold(), 0, json.dumps(state.data())),
                 )
                 write_honours(db, state)
@@ -186,12 +189,14 @@ def commit(state: Journey) -> Journey:
     payload["revision"] += 1
     with database() as db, db:
         changed = db.execute(
-            "UPDATE characters SET revision=?, state=? WHERE id=? AND revision=? AND name=? AND deleted=0",
+            "UPDATE characters SET revision=?, state=? "
+            "WHERE id=? AND revision=? AND name=? AND deleted=0",
             (previous + 1, json.dumps(payload), state.save_id, previous, state.name),
         ).rowcount
         if changed != 1:
             raise ValueError(
-                "Save changed in another window or was deleted. Use load before continuing."
+                "Save changed in another window or was deleted. "
+                "Use load before continuing."
             )
         write_honours(db, state)
     state.revision = previous + 1
@@ -234,7 +239,8 @@ def honours() -> list[dict]:
         return []
     with database() as db:
         rows = db.execute(
-            "SELECT h.*, c.name, c.deleted FROM honours h JOIN characters c ON c.id=h.character_id ORDER BY c.name_key, h.title"
+            "SELECT h.*, c.name, c.deleted FROM honours h "
+            "JOIN characters c ON c.id=h.character_id ORDER BY c.name_key, h.title"
         ).fetchall()
         return [dict(row, record=json.loads(row["record"])) for row in rows]
 
@@ -250,7 +256,8 @@ def show_honours(show_hints=False):
         when = r["first_at"] or "Unknown (imported from classic save)"
         status = " [save deleted; record retained]" if row["deleted"] else ""
         print(
-            f"\n{row['title']} — {row['name']}{status}\nSave: {row['character_id']} | First earned: {when}"
+            f"\n{row['title']} — {row['name']}{status}\n"
+            f"Save: {row['character_id']} | First earned: {when}"
         )
         origin = (
             f"Journey {r['first_run']} | Level {r['level']}"

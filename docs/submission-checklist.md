@@ -1,32 +1,37 @@
 # Submission checklist
 
-## Current local edition — 2026-09-26
+## Verified evidence — 2026-09-26
 
-- [x] Version 0.2.0 continuing journeys and classic-save compatibility implemented.
-- [x] 139 local tests and Ruff checks pass after express replay, collection and concession changes.
-- [x] Actual module launch exercises two journeys and ending collection using temporary saves.
-- [x] Earlier 2026-09-24 Python 3.12 fresh editable-install verification passed (not a fresh install of today's changes).
-- [x] README, progression rules, endings and development feedback updated.
-- [ ] Player has playtested the new express routes, collection hints and concession controls.
-- [ ] Latest implementation uploaded and that exact revision passes Ubuntu CI.
+- [x] Public repository: [hero-on-probation](https://github.com/frandebill-FDB/hero-on-probation).
+- [x] Python 3.10+ package with `pyproject.toml`, a build backend and module entry point.
+- [x] README documents installation, controls, saving and verification.
+- [x] Multiple modules and reusable `Hero` / `Journey` types are available for import.
+- [x] The uploaded gameplay revision `94d1a5d` passed
+  [Ubuntu 24.04 CI on Python 3.10 and 3.12](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/36240490429).
+- [x] A fresh public clone of that revision installed with `uv pip install -e .`,
+  launched with `uv run -m hero_on_probation`, completed two journeys and passed
+  all 139 tests in an isolated Python 3.12 environment.
+- [x] The author reported playtesting the current game without encountering a bug.
+  This is a playtest result, not a guarantee that every path is bug-free.
 
-The earlier release had a public repository and passing CI. Those historical
-results do not verify the new continuing-journey code. The final-delivery checks
-below must be confirmed against the version actually submitted.
+The final documentation/style cleanup is verified separately below. Earlier CI
+results are evidence for their named revision, not for later code changes.
 
-## Final-delivery checks
+## Final cleanup verification
 
-- [x] Installable Python 3.10+ package with module entry point.
-- [x] Local Git baseline preserves the existing prototype honestly.
-- [x] README explains play, commands, saves and limitations.
-- [x] Unit tests cover branches, inventory effects and save replay.
-- [x] Ubuntu 24.04 CI workflow configured for Python 3.10 and 3.12.
-- [ ] The exact final revision passed CI on GitHub (earlier green runs do not verify it).
-- [x] Public GitHub repository created for the earlier release.
-- [ ] Latest local commits pushed and public access rechecked.
-- [ ] Fresh clone of the public repository installed and played.
-- [ ] Student reviewed core code and course AI-assistance policy.
-- [ ] Current Moodle deadline and submission instructions checked.
-- [ ] Public repository URL submitted on Moodle and receipt confirmed.
+- [x] Updated documentation and local links checked; all 140 local tests pass.
+- [x] Ruff `E`, `W`, `F` and `I` checks and formatting pass with an 88-character
+  line-length limit. Earlier overlong source lines have been split.
+- [x] Syntax-tree comparison confirms that source changes affect only two game
+  messages and the package description; rewrapping leaves gameplay logic intact.
+- [ ] Cleanup revision uploaded and verified by GitHub Actions.
 
-Do not mark remote checks complete based only on local testing.
+## Student's remaining submission steps
+
+- [ ] Finish reviewing and updating the development log and feedback record.
+- [ ] Review the core code and confirm the course's AI-assistance rules.
+- [ ] Check the current deadline and submission instructions on Moodle.
+- [ ] Submit the public repository URL on Moodle and retain the confirmation.
+
+Submit the repository URL, not a local directory or a GitHub Actions link.
+A successful GitHub upload is not a Moodle submission.

@@ -285,3 +285,19 @@ class CollectionPlayTests(unittest.TestCase):
             self.assertIn(expected, result.stdout)
         self.assertNotIn("Could not complete action", result.stdout)
         self.assertNotIn("Choose a displayed number", result.stdout)
+
+    def test_parcel_wording_handles_all_jobs_without_changing_state(self):
+        for run_number in (1, 2, 3):
+            state = Journey("a" * 32, "Mira", run=run_number, stage="dispatch")
+            before = state.data()
+            prompt, _ = state.view()
+            self.assertIn(f"deliver {state.job[1]}'s {state.job[2]}", prompt)
+            self.assertNotIn("wants one", prompt)
+            self.assertEqual(state.data(), before)
+            state.stage = "parcel"
+            before = state.data()
+            output = StringIO()
+            with redirect_stdout(output):
+                state.act(1)
+            self.assertIn(f"Contents: {state.job[2]}.", output.getvalue())
+            self.assertEqual(state.data(), before)
