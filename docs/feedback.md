@@ -1,198 +1,183 @@
-# Playtesting feedback
+# Hero on Probation — Playtest Feedback and Idea Notes
 
-I keep my original feedback here so that later development notes can be traced
-back to the problem or design request. Quotes preserve my wording; the English
-summaries describe the requested outcome, not additional requirements.
+This record tries to preserve how I expressed my ideas at the time, rather than rewriting every comment as a formal requirement. Not all feedback concerns bugs: some entries describe awkward experiences, while others are jokes or new mechanics I thought of along the way. Implementation notes appear separately below the feedback, so I can look back and understand why I changed the game.
 
-This record was started on 2026-09-20. FB-001 and FB-002 were entered
-retrospectively from earlier project messages; their linked implementation dates
-do not imply these notes were written at that time. Earlier discussions are
-summarised separately in [the development log](development-log.md).
+FB-001 and FB-002 were documented retrospectively on September 20 from earlier conversations. That documentation date should not be treated as the date the ideas first appeared. Early combat proposals also retain their original wording. They were later implemented in the local version covered by FB-010, rather than remaining unfinished indefinitely. The test results below come from development records at the time; they do not indicate that tests were rerun to compile this document.
 
-For future entries I will keep the original feedback, recording date, requested
-outcome, implementation reference, verification and any remaining questions.
-Implementation and passing tests do not automatically mean the experience has
-been accepted after playtesting. I will record further feedback rather than
-overwrite the original observation.
+<a id="fb-001--discover-the-opening-through-interaction"></a>
 
-## FB-001 — Discover the opening through interaction
+## FB-001 | The opening should not be all reading
 
-Recorded: 2026-09-20, retrospective entry.
+*Recorded retrospectively on September 20; corresponds to the September 19 commit `3ed6e8b`.*
 
-**My original feedback:**
+> I feel that some of the opening introductions are entirely reading, without interaction that lets me gradually discover things.
 
-> 我感觉有些开场介绍完全是阅读，没有互动慢慢认知的情况
+I did not want the opening to feel like reading a manual. I wanted to inspect the contract, ask about the parcel and meet Pip and Bea before deciding whether to accept the job. These optional interactions were later added to the guild opening without forcing players to read everything. The corresponding version passed 15 local tests. Pacing and clarity could still benefit from further playtesting.
 
-**Requested outcome:** I wanted to learn about the world and companions through
-actions, rather than only reading an introduction.
+<a id="fb-002--refuse-the-first-job-for-a-speedrun-ending"></a>
 
-**Implementation:** [3ed6e8b](https://github.com/frandebill-FDB/hero-on-probation/commit/3ed6e8b),
-2026-09-19. Optional counter exploration, parcel questions and companion encounters.
+## FB-002 | Refusing the job can count as a speedrun
 
-**Verification/status:** Implemented; 15 local tests passed at that revision.
-Further feedback about clarity and pacing remains open.
+*Recorded retrospectively on September 20; corresponds to the September 19 commit `c5735c3`.*
 
-## FB-002 — Refuse the first job for a speedrun ending
+> I think the first stage could include an option to refuse the quest and immediately reach a speedrun ending.
 
-Recorded: 2026-09-20, retrospective entry.
+After refusing to deliver the frying pan, the player leaves the guild and receives the `CLOCKED OUT` ending and `ANY% HERO` achievement. This route grants no pan or companion and retains the starting 3 gold. At the time, 18 local tests passed. FB-004 later adjusted the option's wording to avoid revealing the ending before the player selected it.
 
-**My original feedback:**
+<a id="fb-003--create-a-character-and-manage-that-characters-save"></a>
 
-> 我觉得第一关可以再加入一个拒绝接受任务的选项，直接通过的速通结局
+## FB-003 | Saving feels strange without a character
 
-**Requested outcome:** I wanted refusal to be a real choice with its own short,
-funny ending.
+*September 20; commit `6b5b1d8`.*
 
-**Implementation:** [c5735c3](https://github.com/frandebill-FDB/hero-on-probation/commit/c5735c3),
-2026-09-19. Option 5 leads to CLOCKED OUT and the ANY% HERO achievement.
+> I have noticed a problem: the game has no character creation, which makes the save feature rather frustrating. Players should be able to create a character with a corresponding save, and there should also be a way to delete saves.
 
-**Verification/status:** Implemented; 18 local tests passed at that revision.
-Final playtesting acceptance of the ending is not recorded yet.
+This update introduced named characters with individual saves and the ability to import an old version-3 save. Deletion required confirmation, and deleted files could be recovered. Character creation was limited to choosing a name, without classes or an attribute system. At this stage, players still had to save subsequent progress manually after creating a character. The version passed 37 local tests, Ruff and Ubuntu CI. Additional checks in a temporary directory covered two characters, saving and loading, and deletion. Whether the system felt convenient still needed personal playtesting.
 
-## FB-003 — Create a character and manage that character's save
+<a id="fb-004--make-mid-story-saving-visible-and-keep-the-early-ending-a-surprise"></a>
 
-Recorded: 2026-09-20.
+## FB-004 | Make saving visible during the story, and do not spoil the Easter egg
 
-**My original feedback:**
+*September 20; implementation record: `Expose mid-story save controls and hide refusal spoilers`.*
 
-> 现在我发现了问题，这个游戏没有创建角色的功能，存档功能就很无语，应该要有对应的玩家创建角色，并且还要有删除存档的功能
+> There is a problem with the flow: saving seems to be placed at the end of the story, which makes no sense. Also, the speedrun ending should be an Easter egg, rather than an option that plainly tells you the result.
 
-**Requested outcome:** I wanted character creation, saved progress associated
-with the correct character, and an option to delete unwanted saves.
+Investigation showed that the code did not restrict saving to the ending. Instead, the story menus failed to display `save` and `load`. Command prompts were therefore added below story choices, with separate explanations of saving and loading at the ending screen. The refusal option was also changed to ordinary dialogue that did not reveal the ending in advance. The save format and option numbers remained unchanged. At the time, 41 local tests and Ruff checks passed.
 
-**Implementation:** [6b5b1d8](https://github.com/frandebill-FDB/hero-on-probation/commit/6b5b1d8),
-2026-09-20. Named characters have independent slots. The start menu supports
-creation, selection, confirmed recoverable deletion and version-three import.
-The in-game `menu` command returns to character selection. The current scope is
-naming, not a class or attribute system; later progress still needs manual saving.
+<a id="fb-005--no-real-combat-system"></a>
 
-**Verification/status:** Implemented; 37 local tests and Ruff checks passed.
-The [Ubuntu CI run](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/35508428305)
-for this revision also passed. A separate temporary-directory CLI check covered
-two characters, save/load, cancelling deletion and recoverable deletion.
-My own playtesting acceptance of this update is still pending.
+## FB-005 | The game still has no real combat
 
-**Follow-up:** FB-004 records a subsequent usability problem: saving was available
-mid-story, but that availability was not clear from the choice interface.
+*September 20; followed up in the local combat version covered by FB-010.*
 
-## FB-004 — Make mid-story saving visible and keep the early ending a surprise
+> Also, the whole game has no combat system.
 
-Recorded: 2026-09-20.
+At the time, the supposed bridge duel was a single choice whose result depended on equipment. There were no actual hit points, turns or enemy actions. I wanted short turn-based combat while retaining a way to cross the bridge without fighting. This idea was not implemented when first proposed; the later local combat version added the bridge fight.
 
-**My original feedback:**
+<a id="fb-006--let-pip-turn-an-enemy-into-bread-to-bypass-combat"></a>
 
-> 现在有一个路径问题，存档功能似乎设定在了故事结尾，这毫无意义，然后一个速通结局选项应该作为彩蛋而给直白告诉结果
+## FB-006 | Let Pip turn enemies into bread to skip combat
 
-**Requested outcome:** I wanted saving to be useful during the story, not seem
-limited to the end. I also wanted the refusal ending to be an Easter egg rather
-than have its outcome announced in the option text.
+*September 20; followed up in the local combat version covered by FB-010.*
 
-**Diagnosis:** The existing choice handler already accepted `save` and `load`
-at every story prompt. The problem was discoverability: a mid-story menu did
-not show those commands, while the ending explicitly displayed them.
+> I like the rules you suggested. My idea is an unconventional shortcut: the companion who can turn anything into bread could turn enemies into bread to skip the fight.
 
-**Implementation:** The commit titled
-`Expose mid-story save controls and hide refusal spoilers` adds a compact command
-bar beneath each choice, explains end-result saving separately, and replaces the
-refusal label with an ordinary line of dialogue without the ending warning.
-The choices, ending trigger and version-four save format remain unchanged.
+Ordinary attacks are fine, but I prefer this kind of absurd shortcut. The later bridge fight allowed Pip to turn an enemy directly into bread, without first reducing its HP and without receiving a counterattack. The initial idea did not transform the pan; that side effect was added in the next entry.
 
-**Verification/status:** 41 local tests and Ruff checks passed. New checks cover
-command visibility, saving without advancing the story, resuming at the shop
-after quitting and relaunching, and withholding the Easter egg result until the
-choice is made. Further playtesting feedback remains open.
+<a id="fb-007--bread-magic-also-transforms-the-quest-pan"></a>
 
-## FB-005 — No real combat system
+## FB-007 | The shortcut needs a side effect
 
-Recorded: 2026-09-20.
+*September 20; followed up in the local combat version covered by FB-010.*
 
-**My original feedback:**
+> The quest's pan could also turn into bread as a negative side effect.
 
-> 然后整个游戏没有战斗系统
+Skipping a fight should not be entirely free of consequences. When Pip casts the spell on an enemy, the quest pan also turns into bread. A repair kit cannot change it back, and continuing the delivery leads to `ACCIDENTAL CATERING`. The cost mainly affects the story's ending rather than deducting additional gold.
 
-**Observation:** I noticed that the game does not provide an actual combat system.
+<a id="fb-008--pip-can-turn-the-final-boss-into-bread"></a>
 
-**Code review:** The bridge duel is a single-choice story event. It checks the
-equipped item and changes the pan or gold, but there are no player/enemy health
-values, combat turns, enemy actions or damage calculations. Equipment currently
-affects story outcomes rather than combat statistics.
+## FB-008 | Even the boss cannot escape bread magic
 
-**Design proposal, not yet implemented:** Upgrade the existing bridge encounter
-to a short optional turn-based fight with visible health, weapon and shield
-effects, a companion action and retreat. Keep the existing non-combat crossing
-routes. Before changing the decision sequence, determine how to preserve or
-version existing replay saves, and define victory, defeat and retreat outcomes.
+*September 20; followed up in the local combat version covered by FB-010.*
 
-**Status:** Open. This entry records the missing feature and a proposal; no
-combat implementation or combat test result is being claimed.
+> At the end, if Pip is with you and you insist on fighting the dragon, you should be able to turn the boss into bread too.
 
-## FB-006 — Let Pip turn an enemy into bread to bypass combat
+Bringing Pip to the castle and insisting on fighting the boss should give the player a chance to trigger the same ridiculous bread magic. I did not want the option to announce that it would immediately turn the boss into bread, because that would spoil the discovery. This ending was later added in the local combat version.
 
-Recorded: 2026-09-20.
+<a id="fb-009--the-demon-king-is-the-dragon"></a>
 
-**My original feedback:**
+## FB-009 | The Demon King and the dragon are the same character
 
-> 我觉得你的处事规则就很好，我建议的是弄一个邪修，那个能把任何物品变成面包的伙伴能把敌人变成面包来逃课
+*September 20; confirmation of the character concept.*
 
-**Requested outcome:** I liked the proposed initial combat rules and wanted an
-unconventional shortcut: Pip should be able to turn the enemy into bread and
-bypass the normal fight.
+> Keep the former.
 
-**Working design:** Keep the proposed short, deterministic turn-based encounter.
-Pip's companion action transforms the bridge slime and ends combat immediately,
-without an enemy counterattack. It does not require reducing the enemy to low
-health first. The pre-action menu does not label this an instant-win shortcut.
-The initial proposal left the quest pan unchanged. That part was superseded by
-FB-007 below, which explicitly adds the pan's transformation as the drawback.
+The preceding discussion offered two options: make the existing Demon King a dragon, or keep the Demon King and add a separate dragon. I chose the former because I did not want to invent another character just to provide a boss fight. The Demon King at the castle subsequently became a dragon wearing an apron. This confirmation alone does not mean the boss fight had already been implemented at that point.
 
-**Status:** Design recorded, not yet implemented or tested. The exact action
-wording, achievement and aftermath are proposals in
-[the combat design](combat-design.md), not completed features.
+<a id="fb-010--complete-the-boss-fight-and-funny-failure-endings"></a>
 
-**Follow-up to FB-005:** The normal combat rules and this shortcut will be
-implemented in small steps, with replay-save compatibility handled before the
-new fight is connected to the existing story.
+## FB-010 | Complete the boss fight and funny failure endings
 
-## FB-007 — Bread magic also transforms the quest pan
+*September 21, recorded from an earlier implementation request; local combat version.*
 
-Recorded: 2026-09-20.
+> Please now complete all the content for insisting on fighting the boss. The boss should have enormous stats and be impossible to defeat except through the unconventional shortcut. Also add funny achievements and all the endings for losing.
 
-**My original feedback:**
+The old boss fight followed this request with deliberately exaggerated stats: the dragon had 9999 HP, 999 attack and 99 defence. Ordinary combat could not win; Pip's bread spell was the only way. Both the bridge and castle gained actual combat, with distinct outcomes for defeat and retreat. The local combat version had eight endings at that stage. To avoid breaking existing saves, older characters retained their original story rules, while new characters used the combat version.
 
-> 可以把任务锅也变成面包，算是负面效果
+This implementation brought together the proposals in FB-005 through FB-009. Before the navigation fix below, 61 local tests passed. This entry does not mean the version had been uploaded to GitHub or passed remote CI at that time. Continuing-journey mode in FB-012 later changed the boss stats to allow high-level characters to win normally; the newer rules should not be read back into the old version.
 
-**Requested outcome:** I wanted a drawback for Pip's combat shortcut: the quest
-pan should also turn into bread when the enemy does.
+<a id="fb-011--return-to-the-current-choices-after-checking-the-bag"></a>
 
-**Updated design:** The spell ends the fight immediately but sets the pan to
-`bread`. The player continues the story and, on delivery, reaches the existing
-ACCIDENTAL CATERING ending. Repair kits cannot undo this transformation. The
-current bread ending still pays five gold, so the cost is losing the intact-pan
-outcome, not an additional financial penalty. No other equipment is transformed.
+## FB-011 | After checking the bag, it looks as though I cannot return
 
-**Status:** Recorded in the combat design; not implemented or tested yet. This
-refines FB-006 rather than replacing its original quoted request.
+*September 21; local bug fix.*
 
-## FB-008 — Pip can turn the final boss into bread
+> After checking the inventory, I found that I could not return to the previous step. This is a bug that needs fixing and recording in the log.
 
-Recorded: 2026-09-20.
+The screenshot showed that, after printing the inventory, only an empty input prompt remained. Pressing Enter asked for a number from 1 to 4, but the four choices were not listed again. The actual problem was that the menu was not redisplayed, rather than the story reaching a dead end.
 
-**My original feedback:**
+After the fix, viewing the inventory or other information redisplayed the current choices. Pressing Enter or typing `back` did the same. These actions did not rerun the scene or change combat or shopping outcomes. Six regression tests were added, bringing the total to 67 passing local tests, with Ruff checks also passing. Further personal playtesting was still needed.
 
-> 最后带上Pip的情况下 坚持和恶龙战斗可以把boss也变成面包
+<a id="fb-012--persistent-growth-repeatable-jobs-and-a-hall-of-fame"></a>
 
-**Requested outcome:** I wanted the bread-magic shortcut to work at the final
-boss too, when Pip accompanies the hero and the player insists on fighting.
+## FB-012 | Keep levelling up after finishing, and challenge merchants to wager duels
 
-**Design implications:** This adds a final confrontation beyond the currently
-implemented delivery scene. The option should not disclose its bread outcome
-before the player discovers it. The exact battle trigger, aftermath and
-achievement are still to be designed.
+*September 24; local implementation record: `Add continuing journeys, growth and character honours`.*
 
-**Open question:** The current destination character is the Demon King, whereas
-this feedback names a dragon. Whether the dragon replaces the Demon King, is the
-Demon King's form, or is a separate character is not yet decided.
+> I now want to adjust the overall game flow by adding a level system. Achievements from different endings should help the player level up after completing a run, and winning battles should also help them level up. Levelling up should increase the player's attributes. After finishing, the player should be able to continue the journey, keep their level and start a new quest. Change a few boss and stage names while keeping the same structure, so repeatedly playing with the same save improves the character's level and abilities. Defeating the boss through the Easter egg should give a huge level boost. Starting with the second journey, the player should be able to fight all shop NPCs, with a reward for winning and a penalty for losing, using gold as the stake. The second journey should also unlock bribing the boss with gold to pretend to lose. You can discuss more details with me. Finally, I want a Hall of Fame on the home screen showing unlocked achievements, when they were obtained, and which character from which save earned them.
 
-**Status:** Design request recorded. No final-boss fight or transformation has
-been implemented. This extends the combat proposal and does not silently replace
-the existing delivery endings.
+After discussing the rules, my answer was:
+
+> 1. Yes. 2. Keep everything. 3. Disable it.
+
+This meant that high-level characters could beat the boss normally; levels, gold and equipment would be retained; and Pip's bread spell would be disabled in merchant wager duels. Continuing-journey mode accordingly added three rotating jobs, XP-based growth, ten endings, merchant wagers from the second journey onward, boss bribery and a Hall of Fame. The first bread-boss achievement grants 1000 XP, but repeating it does not award the first-time bonus again. Merchant wagers require a 5-gold stake, return 10 gold in total on a win, and forfeit the stake on defeat or retreat.
+
+This update moved state and honour records into SQLite, with automatic saving at key actions to prevent reward farming through reloads. At the time, 100 local tests, Ruff and lockfile checks passed. Installation and a practical gameplay-flow check were completed in a temporary Python 3.12 environment. Remote CI and personal playtesting of the balance were still pending. The next feedback entry addresses the excessive number of menu entries for old and new modes.
+
+<a id="fb-013--one-main-menu-not-two-versions-of-the-game"></a>
+
+## FB-013 | The main menu should not look like two separate games
+
+*September 24; local implementation record: `Unify main menu and upgrade older saves transparently`.*
+
+> The new menu looks strange. It should be integrated instead of split into two.
+
+The screenshot at the time showed nine main-menu options, with old characters, new characters, copying and importing all exposed at the top level. These were later unified into five entries: `New game`, `Continue game`, `Hall of Fame`, `Manage saves` and `Quit`. Older saves were upgraded automatically when loaded. Unfinished older adventures continued under their original rules, while completed ones could continue into another journey. Character identity, existing items and the original JSON backup were preserved, without inventing historical achievement dates.
+
+At the time, 110 local tests and Ruff checks passed. The unified menu replaced the old character-copying workflow. Personal playtesting and remote CI for the new version still needed confirmation.
+
+<a id="fb-014--hide-completed-one-time-choices"></a>
+
+## FB-014 | Do not keep asking me to buy something I already bought
+
+*September 24; local implementation record: `Hide consumed one-time choices in journey menus`.*
+
+> Options like this should disappear once they have been used. This can be recorded in the log as a small improvement.
+
+The issue arose because the certificate purchase option remained after buying it. Selecting it again only displayed “Already certified. Still temporary.” Purchased certificates and unique equipment, completed side quests, attempted wagers and consumed companion abilities were subsequently hidden automatically. Repeatable consumable purchases remained available. Hidden options did not cause the remaining numbers to change, avoiding accidental selections. Ten related tests were added, bringing the total to 120 passing local tests, with Ruff checks also passing. This was a small interface fix, not a new mechanic.
+
+<a id="fb-015--collect-funny-endings-with-less-repetition"></a>
+
+## FB-015 | I want to collect funny endings without following the same route every time
+
+*September 26; local implementation record: `Streamline repeat journeys and add ending collection clues`.*
+
+During this review, my original answers to three questions were:
+
+> A relaxed little game about collecting funny endings.
+>
+> Yes.
+>
+> The repetitive flow.
+
+These referred to the experience I wanted to create, whether I liked the huge XP reward for the first bread-boss victory, and what bothered me most about replaying. I then confirmed:
+
+> Go ahead with what you suggested, and record these improvements in the log too.
+
+Rather than weakening Pip's shortcut or adding another large system, the update added quick routes from the second journey onward, companion switching and an option to replay the full opening. The Hall of Fame displayed `?/10` ending collection progress, hidden names and optional clues. Combat gained a concede option so high-level characters could still obtain failure endings. Conceding a merchant wager still forfeited the stake, and skipped events did not award free rewards.
+
+At the time, 139 local tests, Ruff and formatting checks passed. A temporary character completed the first bread-boss route, started a quick second journey and conceded the boss fight, displaying `2/10` collection progress. **I had not yet completed a personal playtest to confirm the changes, and this record did not confirm that the latest version had been uploaded to GitHub or passed remote CI.**
+
+## What to record next
+
+Continue recording issues found during actual playtests, especially quick second journeys, companion switching, conceding, ending clues, deletion and restoration, and upgrades of older saves. If the design changes later, add a new feedback entry and link to the earlier record rather than quietly altering what was originally said.
