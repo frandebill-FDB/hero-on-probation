@@ -301,6 +301,8 @@ class JourneyTests(unittest.TestCase):
                 self.assertEqual(state.ending, "ACCIDENTAL CATERING")
                 self.assertEqual(state.inventory["Repair Kit"], 1)
             else:
+                self.assertEqual(state.stage, "repair")
+                state = self.act(state, 1)
                 self.assertEqual(state.ending, "DELIVERY COMPLETE")
                 self.assertNotIn("Repair Kit", state.inventory)
 

@@ -7,7 +7,10 @@ HINTS = {
         "The guild's offer is not compulsory. Revisit the full introduction."
     ),
     "DELIVERY COMPLETE": "Sometimes doing exactly the job is enough.",
-    "DISH DUTY": "An unshielded parcel can block a hit. Leave repair kits at the shop.",
+    "DISH DUTY": (
+        "Stow your shield before a fight, then defend with the parcel. "
+        "You can decline repairs at delivery."
+    ),
     "ACCIDENTAL CATERING": "Pip can change what you deliver at the crossing.",
     "TOLL TAKEN": "The crossing guard accepts a concession, even from a strong hero.",
     "BOSS DEFEAT": "A boss fight can end with your concession, at any level.",

@@ -87,7 +87,14 @@ Wooden Sword base damage is 3, Iron Sword 5, and no weapon 1; add level bonuses.
 Pot Lid gives 1 defence and protects a parcel when defending. Defending adds 4
 protection for that turn. Bea gives one counterattack (+2 damage) and full enemy
 turn block per battle. Pip instantly transforms both opponent and task parcel.
-A repair kit fixes damage but not bread. Retreat from the crossing keeps damage
+A repair kit fixes damage but not bread. A damaged delivery with a kit pauses
+for a saved choice: consume one kit to repair it, or deliver it as-is and keep
+all kits. There is no automatic repair without the player's confirmation.
+The `shield` command equips or stows an owned Pot Lid outside battles and endings;
+it keeps the item, autosaves, and retains the equipment choice across journeys.
+Stowing it before defending lets the same character collect DISH DUTY even after
+buying a shield. Old replay-save rules remain unchanged.
+Retreat from the crossing keeps damage
 and returns to its menu; retreat from the boss is a terminal outcome.
 
 Combat choice 5 concedes defeat without waiting to lose HP naturally. Against

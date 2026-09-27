@@ -45,6 +45,7 @@ renumbering the remaining choices.
 | `hall` | View the ending collection and achievement records. |
 | `hints` | Reveal optional clues for undiscovered endings; also works in the main menu. |
 | `travel` | Return to express-route choices outside battles and endings. |
+| `shield` | Equip or stow an owned Pot Lid outside battles and endings; autosaves. |
 | `back` or Enter | Redisplay the current choices; does **not** undo an action. |
 | `save`, `load` | Reload the latest automatic snapshot, not an earlier checkpoint. |
 | `help` | Show command help. |
@@ -55,6 +56,11 @@ enemy **and your parcel** into bread; Bea can counterattack and block once per
 fight. Combat option **5. Concede defeat** allows failure endings even at high
 levels. From journey 2, merchants offer 5-gold wagers: victory pays 10 gold total;
 defeat, concession or retreat forfeits the stake. Pip's spell is banned in wagers.
+
+Stowing the shield keeps it in your bag and allows the parcel to take damage
+when defending. Delivering a damaged parcel while carrying a Repair Kit offers
+a choice: repair it or keep the kit and deliver it as-is. This lets the same
+character collect both delivery outcomes without discarding permanent gear.
 
 ## Saves and collection
 

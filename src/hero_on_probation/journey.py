@@ -36,6 +36,7 @@ STAGES = {
     "certificate",
     "castle",
     "confirm",
+    "repair",
     "battle",
     "ending",
 }
@@ -228,6 +229,19 @@ class Journey:
             "return_to": return_to,
         }
         self.stage = "battle"
+
+    def toggle_shield(self):
+        """Equip or stow an owned shield outside combat; keep the item itself."""
+        if self.stage in ("battle", "ending"):
+            raise ValueError("Change your shield outside battles and endings.")
+        if not self.inventory.get("Pot Lid", 0):
+            raise ValueError("You do not own a Pot Lid shield.")
+        if self.equipment.get("Shield") == "Pot Lid":
+            del self.equipment["Shield"]
+            print("Pot Lid stowed in your bag. Your parcel is no longer protected.")
+        else:
+            self.equipment["Shield"] = "Pot Lid"
+            print("Pot Lid equipped. +1 defence; protects the parcel when defending.")
 
     def travel(self):
         """Return to express-route choices without resetting events or rewards."""
@@ -481,6 +495,13 @@ class Journey:
                     "I insist. Draw your weapon.",
                 ],
             ),
+            "repair": (
+                "The parcel is damaged. A repair kit waits for your approval.",
+                [
+                    "Use one Repair Kit, then deliver the repaired parcel.",
+                    "Keep the kit and deliver the parcel as it is.",
+                ],
+            ),
             "ending": (
                 f"ENDING: {self.ending} | Journey {self.run} settled and saved.",
                 [
@@ -558,8 +579,13 @@ class Journey:
             prompt = "This errand is complete. No paperwork remains. A miracle."
         return prompt, [label for _, label in self.available_options()]
 
-    def deliver(self):
-        if self.parcel == "damaged" and self.inventory.get("Repair Kit", 0):
+    def deliver(self, repair: bool | None = None):
+        """Offer optional repairs before paying and settling a damaged delivery."""
+        can_repair = self.parcel == "damaged" and self.inventory.get("Repair Kit", 0)
+        if can_repair and repair is None:
+            self.stage = "repair"
+            return
+        if can_repair and repair:
             self.inventory["Repair Kit"] -= 1
             if not self.inventory["Repair Kit"]:
                 del self.inventory["Repair Kit"]
@@ -732,6 +758,8 @@ class Journey:
                 self.deliver()
             else:
                 self.begin_battle("boss", "castle")
+        elif stage == "repair":
+            self.deliver(repair=action == 1)
         elif stage == "ending":
             if action == 1:
                 self.next_run()

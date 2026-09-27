@@ -9,7 +9,7 @@ names; this document intentionally reveals all of them.
 | --- | --- | --- | --- |
 | CLOCKED OUT | Refuse the guild job; use full introduction on later journeys. | ANY% HERO | 0 |
 | DELIVERY COMPLETE | Deliver an intact parcel. | DELIVERY HERO | 5 |
-| DISH DUTY | Deliver a damaged parcel with no repair kit; defending without a Pot Lid damages it. | LORD OF THE RINSE | 0 |
+| DISH DUTY | Stow an owned Pot Lid with `shield`, then defend to damage the parcel; deliver without repairing (decline if carrying a kit). | LORD OF THE RINSE | 0 |
 | ACCIDENTAL CATERING | Use Pip at the crossing, then deliver the bread parcel. | BREADWINNER | 5 |
 | TOLL TAKEN | Lose or concede the crossing fight. | SPOON-FED DEFEAT | 0 |
 | BOSS DEFEAT | Lose or concede a boss fight. | ONE-HIT INTERN | 0 |

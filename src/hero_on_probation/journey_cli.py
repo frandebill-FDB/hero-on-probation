@@ -26,6 +26,9 @@ def run(state: Journey) -> bool:
         )
         if "express" in state.flags and state.stage not in ("battle", "ending"):
             print("travel: return to route choices (no progress reset).")
+        if "Pot Lid" in state.inventory and state.stage not in ("battle", "ending"):
+            action = "stow" if state.equipment.get("Shield") == "Pot Lid" else "equip"
+            print(f"shield: {action} your Pot Lid (autosaves; keeps the item).")
         try:
             command = input("> ").strip().lower()
             if command == "quit":
@@ -65,13 +68,19 @@ def run(state: Journey) -> bool:
                 candidate = copy.deepcopy(state)
                 candidate.travel()
                 state = journey_store.commit(candidate)
+            elif command == "shield":
+                candidate = copy.deepcopy(state)
+                candidate.toggle_shield()
+                state = journey_store.commit(candidate)
             elif command == "help":
                 print(
                     "Numbers act. Information commands and back do not take a turn. "
                     "Every action saves automatically. "
                     "load cannot undo a wager or reward. "
                     "Use hints for optional ending clues; "
-                    "travel returns to express-route choices outside combat."
+                    "travel returns to express-route choices outside combat. "
+                    "shield equips or stows an owned Pot Lid outside battles "
+                    "and endings; the change autosaves."
                 )
             elif command == "save":
                 # No stale in-memory copy may overwrite a newer committed action.
