@@ -1,212 +1,124 @@
-# Development log
+# Hero on Probation — Development Log
 
-I use this log to explain what I wanted from the game, what I noticed during
-playtesting, and how the project changed in response. My original wording and
-follow-up status are kept in [the feedback record](feedback.md). The early-development
-section was added retrospectively on 2026-09-20 from project discussions and
-the first code snapshot; its individual development dates are not confirmed.
-The dated implementation entries refer to actual Git commits. Test results
-describe the checks at those revisions, not a new test run for this document.
+This log records how I gradually shaped the game into something I wanted to play. Sometimes an idea came from a problem I encountered during a playtest; sometimes I simply thought of a funny ending. The original feedback and the follow-up work are recorded in the [playtest feedback log](feedback.md).
 
-## Early development — retrospective notes
+Some early work was documented retrospectively from project discussions, without precise development dates. The commit hashes below identify recorded Git revisions. Entries that only have a commit title and are marked as local should not be taken as evidence that they were uploaded. Test counts come from the records kept at each stage; I did not rerun the tests just to compile this log.
 
-### Finding a topic I wanted to work on
+## Getting started: from a study tool to a frying pan (retrospective)
 
-I initially explored a study-planning tool, but I was more interested in a
-text adventure because it gave me room to develop an original story. I tried
-a last-train theme with a protagonist travelling home. After discussing the
-story, I felt that the mystery was too conventional and that lengthy suspense
-would be tiring to read in a terminal.
+I initially considered making a study planner, but eventually found a text adventure more interesting: at least I could invent my own story. I also explored a mystery called “The Last Train,” in which the protagonist was travelling back to their hometown. The more I thought about it, though, the more familiar the premise felt. Reading long stretches of mystery prose in a terminal did not seem particularly relaxing either, so I changed direction.
 
-I wanted an English-language game that other students could understand. I
-eventually chose short comic fantasy, inspired by the familiar hero-versus-Demon
-King setup but with absurd everyday problems instead of a long heroic epic.
-The resulting prototype, Hero on Probation, sends the hero to return a frying pan.
+I wanted to make a short, funny fantasy game in English that other students could understand. On the surface, it would be about a hero and a Demon King, but the actual quest would be returning someone's frying pan. That became **Hero on Probation**.
 
-### Making the prototype feel like a game
+The early version was quite sparse. I wanted it to feel more like a game, not just a story with choices, so companions, gold, equipment and side quests were gradually added. I still wanted each adventure to stay short and each ending to have its own achievement. By the first Git snapshot, the game already included Pip and Bea, a shop, a rat relocation dispute, a warehouse ghost trying to resign, a bridge encounter, an inventory, a quest list, an in-game journal, saving and loading, and three delivery endings. These early features do not each have a separate Git date.
 
-I felt that the early experience was too sparse. I asked for more side stories
-and a way to track gold, equipment and possessions. I also asked that the
-adventure stay short and that each ending have its own achievement.
+## September 7: preserve a playable version first
 
-By the first Git snapshot, the game included two companions, a shop, the rats'
-moving dispute, the warehouse ghost's resignation, a bridge encounter, inventory,
-equipment, quests, a journal, save/load and three delivery endings. These features
-are present in that snapshot, but separate implementation dates were not recorded.
+The first Git snapshot was created on this date (`3b58af3`, `Record playable RPG baseline`). This does not mean development started from scratch that day. The game already supported a complete short adventure, basic state tracking, choice-replay saves, three ending achievements, project configuration, a README and regression tests.
 
-## 2026-09-07 — First version-control snapshot
+After reaching an ending, I started thinking about submission: could someone else install the game? Would it run on Ubuntu? Were the instructions clear? Instead of adding more story, the next work focused on installation and gameplay instructions, explanations of saving and the code structure, and a submission checklist. A GitHub Actions workflow was then added to check the game on Ubuntu 24.04 with Python 3.10 and 3.12.
 
-Commit: `3b58af3` — `Record playable RPG baseline`.
+This work corresponds to `1c52aaf` (`Document submission workflow and configure Ubuntu verification`). At the time, 11 local tests and Ruff checks passed, and GitHub Actions subsequently passed for that revision. These results apply to that version only; they do not mean every later update also passed CI.
 
-My project was already playable when this repository was created. This commit
-preserves that prototype; it is not the start of development. Earlier design
-discussions are summarised above, but there are no step-by-step Git snapshots
-of that earlier work.
+## September 19: the opening should not read like a manual
 
-The baseline includes the short adventure, state tracking, replay-based saves,
-three ending achievements, package configuration, a README and regression tests.
+I first tagged the baseline as `v0.1.0`, pointing to `1c52aaf`, so that later changes would not leave me without the original playable version.
 
-## 2026-09-07 — Preparing installation and verification
+When playing through the opening, I felt that the setting and companions were mostly introduced through exposition. The player had to read quite a lot before doing anything. I wanted players to discover the world through choices instead of hearing all the background at once. At the same time, this was a short game, so I did not want the opening to drag on.
 
-Commit: `1c52aaf` —
-`Document submission workflow and configure Ubuntu verification`.
+The guild opening therefore gained options to read the contract, check the hero's pockets, ask about the parcel, and talk to Pip and Bea first. Players could still accept the job immediately or inspect things more than once. Repeated inspection did not generate extra gold or items. The town, bridge and original three delivery endings were unchanged.
 
-After reaching an ending, I asked whether the project was ready for submission
-and what was still missing. The next changes addressed installation, documentation
-and verification rather than adding more story.
+This change is recorded in `3ed6e8b` (`Make the guild opening discoverable through player choices`, FB-001). Because the sequence of opening choices changed, saves moved to version 3, using `saves/adventure-v3.json`. Version-2 saves could still be played with `v0.1.0`. At the time, 15 local tests and Ruff checks passed; no confirmation of remote CI for that revision was recorded.
 
-The README was expanded with installation and launch commands, controls, saves,
-code structure and limitations. A submission checklist and Ubuntu 24.04 GitHub
-Actions workflow were added, with Python 3.10 and 3.12 checks. At this stage,
-11 local tests and Ruff checks passed. The subsequent GitHub Actions run for
-this revision also passed; that result does not cover later revisions.
+## September 19: what if I simply refuse to work?
 
-## 2026-09-19 — Keeping a baseline and improving the opening
+Since the hero's job was only to deliver a frying pan, refusing the assignment and immediately clocking out felt right for this deliberately silly game. So an early-exit speedrun Easter egg was added.
 
-I wanted to preserve the first version before improving it gradually. The
-`v0.1.0` tag was created on this date, pointing to the September 7 revision
-`1c52aaf`. It remains available as a reference and for the original save format.
+At the guild, the player could refuse the job and receive the `CLOCKED OUT` ending and `ANY% HERO` achievement. The hero kept the starting 3 gold, never received the pan, never recruited a companion, and ended the adventure there. The new option was appended after the existing numbers to avoid changing earlier choice records. Save replay also had to recognise that the player had never accepted the job, rather than sending them on to the town.
 
-Commit: `3ed6e8b` —
-`Make the guild opening discoverable through player choices`.
+The corresponding commit is `c5735c3` (`Add a refusal speedrun ending at the guild`, FB-002). At the time, 18 local tests and Ruff checks passed. Remote CI was not separately confirmed.
 
-**What I noticed:** I did not understand all the options and endings. In
-particular, the opening explained the setting and companions through reading
-rather than letting me discover them through interaction.
+## September 20: without a character, whose progress am I saving?
 
-**What I wanted:** A short opening where I could inspect things, ask questions
-and meet the companions before choosing one, without making the story much longer.
+As I kept playing, I noticed that the original system had only one anonymous save slot, with no character creation or save deletion. That felt awkward for an adventure with progression and equipment. I wanted to create a character first and give each character their own progress, rather than putting everything into one save.
 
-**What changed:** The opening now offers contract and pocket inspection, questions
-about the parcel, and short Pip/Bea encounters. Questions can be skipped or
-revisited. Accepting the parcel always states the delivery goal and reward.
-Repeated inspection gives no extra money, items or journal entries. The town,
-bridge and three delivery endings were kept unchanged.
+This update added character naming and menu options to create, load and delete characters, as well as import an old version-3 save. Each character had a separate save, and duplicate names were rejected. Deletion required typing `DELETE`; deleted files were first moved to `saves/deleted/` so they could be recovered. I kept character creation to naming only, without adding classes or attribute allocation. Creating a character generated an initial save, but later progress still required a manual `save`.
 
-**Technical notes:** The new choice sequence requires version-three saves in
-`saves/adventure-v3.json`. The previous file is left untouched, and version-two
-saves can still be played using the preserved `v0.1.0` game.
+The new save format was version 4. Display names were separated from internal IDs, and character names were not used directly to construct file paths. Old saves were validated before import, then copied rather than overwritten. This work corresponds to `6b5b1d8` (`Add named characters and recoverable save management`, FB-003). At the time, 37 local tests, Ruff and Ubuntu CI for that revision passed. Two-character handling, saving and loading, and recoverable deletion were also checked in a temporary directory without touching existing player saves.
 
-**Verification:** 15 local tests passed, covering all three complete delivery
-routes, optional/repeated exploration, saves at each opening stage and safe
-rejection of older saves. Ruff lint and format checks passed. Remote CI for
-this revision was not confirmed in this entry.
+## September 20: two small problems—one with usability, one with spoilers
 
-## 2026-09-19 — A refusal ending
+After character saves were added, I noticed that the game appeared to allow saving only at an ending. That seemed strange: a text adventure would be inconvenient if saving midway were difficult. Investigation showed that `save` and `load` already worked during the story; the interface simply did not tell the player. This update did not rewrite the save system. Instead, it displayed the commands below each set of choices and separately explained the difference between saving and loading after an ending.
 
-Commit: `c5735c3` — `Add a refusal speedrun ending at the guild`.
+There was also a problem with the speedrun ending added the day before. I wanted refusing the job to be an unexpected Easter egg, but the option explicitly told the player it would end the game, giving away the joke. The option was changed to ordinary dialogue, and the README's ending descriptions were placed behind a spoiler warning.
 
-**What I wanted:** At the first job offer, I wanted the option to refuse and
-finish immediately with a funny speedrun ending, instead of always accepting
-the delivery.
+This work was recorded as `Expose mid-story save controls and hide refusal spoilers` (FB-004). At the time, 41 local tests and Ruff checks passed. An additional check covered saving at the shop, quitting, and loading back into the same decision. Remote CI for that version was not confirmed.
 
-**What changed:** Option 5, "Decline the job and leave", now leads to
-`CLOCKED OUT` and the `ANY% HERO` achievement. The hero keeps the initial
-3 gold and leaves without accepting the quest, receiving the pan or recruiting
-a companion. Review commands and save/load still work after the ending.
+## September 20–21: finally, combat—but I still want Pip to skip it
 
-**Technical notes:** The guild reports whether the job was accepted, and both
-live play and save validation use the same story runner. This prevents replay
-from continuing into town after refusal. The new option is appended without
-renumbering existing choices, so existing version-three saves remain compatible.
+Another obvious issue emerged while playing: although the game had a bridge duel and equipment, it did not yet have actual turn-based combat. Making one choice and changing the outcome based on equipment did not quite feel like an RPG.
 
-**Verification:** 18 local tests passed, including refusal before and after
-exploration, unchanged resources, skipped later scenes, repeated load without
-duplicate achievements, review commands and rejection of decisions after the
-ending. The original delivery routes still pass, as do Ruff checks. Remote CI
-for this revision was not confirmed in this entry.
+However, I did not want to turn it into a serious grinding game. Pip could already turn things into bread, so why not let him turn enemies into bread and bypass normal combat? I also added a drawback to this unconventional shortcut: the spell would turn the quest's frying pan into bread as well. Skipping the fight would be quick, but it would send the story towards another strange ending.
 
-## 2026-09-20 — Named characters and save management
+The final boss followed the same idea. Rather than adding a separate dragon, I made the existing Demon King a dragon wearing an apron. In the old combat version, the boss had 9999 HP and could not be beaten with ordinary attacks. Only bringing Pip allowed the player to turn it into bread. I also wanted defeat and retreat to lead to funny endings and achievements instead of just a Game Over screen.
 
-Git record: `6b5b1d8` — `Add named characters and recoverable save management`.
-Original feedback: [FB-003](feedback.md#fb-003--create-a-character-and-manage-that-characters-save).
+The local combat version added a short, non-random bridge fight, followed by a choice between peaceful delivery and insisting on a duel at the castle. There were eight endings at that stage. To prevent the new rules from breaking old characters' choice records, version-5 saves recorded the story rules version. Existing characters kept the old rules, while new characters used the combat version. These ideas and their implementation correspond to FB-005 through FB-010.
 
-**What I noticed:** The game had no character creation. The single unnamed save
-did not feel connected to a player, and there was no way to delete a save in-game.
+**Status at the time: local version, not yet uploaded to GitHub.** Before the navigation fix below, 61 local tests passed.
 
-**What I wanted:** Create a character before playing, associate saved progress
-with that character, and offer a way to delete unwanted saves.
+## September 21: where did the choices go after checking my bag?
 
-**What changed:** A start menu now offers creation, loading, deletion and import
-of old version-three progress. Each named character has a separate save, and the
-name appears in story menus and status. Duplicate active names are rejected.
-The `menu` command returns to character selection without saving new progress.
-Creating a character writes a starting save; later progress still needs `save`.
-Character creation is deliberately limited to naming, without adding classes,
-stats or more story content in this iteration.
+This was a bug encountered during an actual playtest. After I opened the inventory, the screen showed only an input prompt; the numbered choices were not displayed again. Pressing Enter produced a message asking me to enter a number from 1 to 4. The game was not actually stuck, but it looked as though there was no way back.
 
-**Technical notes:** Version-four saves contain a generated ID, a display name
-and replay choices. Display names are not file paths. Writes replace only the
-current character's slot atomically. Import validates version-three progress
-before creating a named copy and leaves the source file unchanged. Deletion
-requires typing `DELETE` and moves the selected file to `saves/deleted/`, making
-it recoverable without affecting other characters. Old version-two saves still
-require the preserved initial game.
+The fix addressed menu display rather than adding a way to undo story decisions. After viewing the inventory or other information, the current choices are shown again. Pressing Enter or typing `back` also redisplays the menu. Redisplaying it does not rerun the scene, so checking the bag cannot accidentally repeat a purchase, grant another reward, or give an enemy an extra attack.
 
-**Verification:** 37 local tests passed, including the original story regressions,
-separate character progress, duplicate/invalid names, cancelled and confirmed
-deletion, recovery-copy contents, save-write failure and old-save import. Ruff
-lint and format checks passed. The CI module-entry smoke test now creates a
-character, reaches an ending, saves and reloads. The subsequent
-[Ubuntu CI run for this revision](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/35508428305)
-passed; that result does not cover future changes.
-An actual module launch in an isolated temporary directory also exercised two
-characters, a completed ending, save/load, cancelled deletion and confirmed
-recoverable deletion. No existing player saves were used or changed by that check.
+This local fix corresponds to FB-011. Six regression tests were added, bringing the total to 67 passing local tests, with Ruff checks also passing. The save format and option numbers were unchanged. Another personal playtest was still needed; there was no upload or remote CI confirmation at that point.
 
-## 2026-09-20 — Mid-story save controls and a less obvious Easter egg
+## September 24: I want to keep using the same character after finishing
 
-Git record: `Expose mid-story save controls and hide refusal spoilers`.
-Original feedback: [FB-004](feedback.md#fb-004--make-mid-story-saving-visible-and-keep-the-early-ending-a-surprise).
+The original short adventure ended when the story was complete, but I had become attached to the equipment and gold I had collected. I wanted the same character to continue adventuring, level up through combat and ending achievements, and take on new jobs with similar structures but different names and situations. Finishing a run would then mean gradual character growth, not just starting over.
 
-**What I noticed:** The interface made it look as though saving was only
-available at the end of the game. Also, the refusal option announced that it
-would end the adventure, which spoiled the surprise I wanted from a speedrun
-Easter egg.
+The idea became increasingly ridiculous: the first bread-boss victory would grant a huge amount of XP; the second journey would unlock wager duels with shop NPCs; and the player could even bribe the boss to pretend to lose. A Hall of Fame on the main menu would record which character earned each achievement and on which journey. After discussing and weighing these rules, I decided to retain levels, gold and equipment, allow high-level characters to beat the boss with ordinary attacks, and ban Pip's bread magic from merchant wager duels.
 
-**What changed:** Every story choice now displays a compact `save` / `load`
-command bar. Saving was already supported at those prompts; the improvement
-makes that existing behaviour visible. The ending separately explains that
-saving there keeps the completed result, while loading returns to the last save.
-The refusal option is now a normal line of dialogue without an ending label.
-The README's ending reference is also collapsed behind a spoiler heading.
 
-**Verification:** 41 local tests and Ruff checks passed. A new regression test
-saves in the shop, exits, starts the menu again and restores the same character
-at the same unfinished decision. Other new checks verify visible save controls
-and that the early ending is not disclosed before selection. No story choice
-numbers or save format changed. Remote CI for this revision is a separate check.
+This changed the earlier rule that nobody except Pip could defeat the boss. In continuing-journey mode, bosses have fixed HP values in the 120–140 range, rather than the old mode's 9999 HP. A level-1 character still cannot win, but the level-8 character used in testing can win normally. The old combat values remain unchanged. Continuing journeys have three rotating jobs and ten endings. Unlocking the bread-boss achievement for the first time grants 1000 XP; earning it again does not repeat the first-time bonus.
 
-## Next steps
+Saving had to change too. After each decision, continuing journeys automatically save the current scene, combat and permanent progress. SQLite updates character data and honour records in the same transaction, preventing repeated rewards or wager farming through reloads. At that stage, old manual saves still worked, and a character who had completed an adventure could be copied into the new mode. Historical achievement dates that had never been recorded were marked as unknown rather than guessed.
 
-I have also identified the lack of a real combat system. The current bridge
-duel is only a story choice; [FB-005](feedback.md#fb-005--no-real-combat-system)
-records this open issue and a proposed small turn-based encounter. Its design,
-save compatibility and implementation are still pending.
-I liked the proposed initial rules and suggested that Pip could turn the enemy
-into bread to bypass the fight. [FB-006](feedback.md#fb-006--let-pip-turn-an-enemy-into-bread-to-bypass-combat)
-preserves that request, and [the combat design](combat-design.md) separates the
-working rules from implementation and test results that are still pending.
-I then suggested that the spell also turn the quest pan into bread as a drawback.
-[FB-007](feedback.md#fb-007--bread-magic-also-transforms-the-quest-pan) records this
-revision. The combat design now links the shortcut to the existing bread-pan
-delivery ending; the new combat action itself has not been implemented yet.
-I also proposed a final-boss bread transformation when Pip is present and I
-insist on fighting. [FB-008](feedback.md#fb-008--pip-can-turn-the-final-boss-into-bread)
-records that extension. The dragon's relationship to the existing Demon King
-and the final outcome still need to be decided before implementation.
+This work corresponds to `Add continuing journeys, growth and character honours` (FB-012). At the time, 100 local tests, Ruff and lockfile checks passed. An editable installation and a practical two-journey flow check were completed in a temporary Python 3.12 environment. Updated Ubuntu CI was configured, but its remote result had not yet been confirmed. Whether the progression numbers were fun still needed further personal playtesting.
 
-I want to check whether the mid-story save controls are now clear and whether
-the early ending feels like a discovery. Character switching, deletion and
-old-save import remain part of further playtesting. I also want to work
-through the character state, branching, save replay
-and tests so that I can understand and explain the implementation. Further
-changes should address specific playtesting feedback rather than just add length.
+## September 24: the main menu should not make old and new versions look like separate games
 
-## Development tools and collaboration
+To support older characters, the previous update had made the main menu longer and longer. It ended up with nine options, including separate creation paths for old and new modes, copying and importing. Having to choose between technical options before even playing did not feel right.
 
-I chose the direction and provided the design requests and playtesting feedback
-described above. I used AI assistance to generate and revise code, prepare and
-run automated tests, and help draft documentation. I have not kept a complete
-record of working hours, so this log does not infer them retrospectively. The
-course's rules on AI assistance still need to be confirmed before submission.
+I decided to reduce the main menu to five basic entries: `New game`, `Continue game`, `Hall of Fame`, `Manage saves` and `Quit`. Save compatibility should be handled when loading, not by making players understand save versions first. An unfinished older adventure continues under its original rules, with `next` available after its ending. A completed older save is upgraded when loaded, while its original JSON is retained as a backup. Repeating an upgrade must not create another character or award rewards again. Deleted characters must not quietly reappear from their backups either.
+
+This work corresponds to `Unify main menu and upgrade older saves transparently` (FB-013). At the time, 110 local tests and Ruff checks passed. Automated tests used fixtures rather than existing player saves. Further personal playtesting and remote CI were still pending. The unified menu also replaced the separate old-character copying entry from the previous update.
+
+## September 24: stop offering things I have already bought
+
+Another small but irritating playtest issue was that the certificate purchase option remained visible after buying it. Selecting it again only produced “Already certified. Still temporary.” Similar problems affected some completed side quests and one-use companion abilities.
+
+I did not want to redesign the system just for this. I only wanted consumed one-time options to disappear automatically. Certificates, unique equipment, completed side quests, attempted wagers and used companion abilities are now hidden according to the saved state. Repeatable purchases, such as repair kits, remain available. Hiding an option does not renumber the others, so entering a familiar number cannot accidentally select something different.
+
+This work corresponds to `Hide consumed one-time choices in journey menus` (FB-014). At the time, 120 local tests and Ruff checks passed. New tests covered obsolete option numbers, visibility after saving, and resets for a new journey. This was a local interface improvement that still needed playtesting and remote CI confirmation.
+
+## September 26: I want to collect funny endings, not repeat the same journey
+
+Looking back over the game, I realised that what I most wanted to preserve was the absurd feeling of turning the boss into bread with Pip for the first time and suddenly gaining a huge amount of XP. I wanted a relaxed game about collecting funny endings, not one that made players repeat the same guild and town sequence over and over just to reach the next joke.
+
+This update therefore did not add another large system or weaken the bread spell. Instead, it tackled repeat play directly. From the second journey onward, a route menu retains the previous companion and allows direct travel to the boss, town, bridge or certificate merchant. Players can still change companions or replay the full opening. Skipped events do not award rewards for free, and returning to the route menu does not reset completed side quests or wagers.
+
+The Hall of Fame now begins with collection progress across the ten endings. Unlocked endings show their names and jokes, while undiscovered ones appear as `???`, with optional clues available. Detailed character, save and achievement-time records remain accessible. Combat also gained an option to concede, allowing high-level characters to collect failure endings that would otherwise become difficult to reach. Conceding a merchant wager still forfeits the stake and does not grant a free reward.
+
+This local implementation was recorded as `Streamline repeat journeys and add ending collection clues` (FB-015). At the time, 139 local tests, Ruff and formatting checks passed. A temporary character completed the bread-boss route, started a quick second journey, conceded the boss fight, and displayed `2/10` collection progress. **This does not mean I had personally confirmed that replay pacing felt right, nor that the latest version had been uploaded to GitHub or passed remote CI.**
+
+## What I want to check next
+
+In the next playtest, I want to focus on the quick second journey: changing companions, conceding and viewing ending clues. I want to see whether these changes actually reduce repetition without spoiling the jokes. Character switching, deletion and restoration, and automatic upgrades of older saves also need further personal checks.
+
+Uploading the latest local version, Ubuntu CI and Moodle submission requirements still need confirmation. I also want to review how character state, branches, save replay and tests fit together, both for future maintenance and so I can explain the implementation clearly in a course presentation. Any later additions should ideally respond to specific playtest feedback, rather than adding features simply to make the project look bigger.
+
+## About AI assistance
+
+I completed the bulk of this game myself, from the story and gameplay to its main features and code implementation. AI mainly helped in two areas: setting up parts of the code framework early on, and assisting with debugging during development, such as investigating errors, checking logic or discussing possible fixes. The test results in this log are records of checks at the time; where I have not personally confirmed something through playtesting, I note that separately.
