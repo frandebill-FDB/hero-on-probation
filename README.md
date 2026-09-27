@@ -45,7 +45,7 @@ renumbering the remaining choices.
 | `hall` | View the ending collection and achievement records. |
 | `hints` | Reveal optional clues for undiscovered endings; also works in the main menu. |
 | `travel` | Return to express-route choices outside battles and endings. |
-| `shield` | Equip or stow an owned Pot Lid outside battles and endings; autosaves. |
+| `shield` | Toggle an owned Pot Lid between equipped and stowed, outside battles and endings; autosaves. |
 | `back` or Enter | Redisplay the current choices; does **not** undo an action. |
 | `save`, `load` | Reload the latest automatic snapshot, not an earlier checkpoint. |
 | `help` | Show command help. |
@@ -61,6 +61,28 @@ Stowing the shield keeps it in your bag and allows the parcel to take damage
 when defending. Delivering a damaged parcel while carrying a Repair Kit offers
 a choice: repair it or keep the kit and deliver it as-is. This lets the same
 character collect both delivery outcomes without discarding permanent gear.
+
+### Using the Pot Lid shield
+
+Buying a Pot Lid equips it automatically. To change this, type just `shield`
+at the game's `>` prompt and press Enter. It is a text command, not a numbered
+choice. **Each use switches the state:** equipped becomes stowed, and stowed
+becomes equipped. Repeating the command reverses your previous change.
+
+The prompt describes what your **next** `shield` command will do:
+
+- `shield: stow your Pot Lid ...` means the shield is currently equipped.
+- `shield: equip your Pot Lid ...` means the shield is currently in your bag.
+
+`Pot Lid stowed` confirms it has been removed from equipment, not thrown away.
+`Pot Lid equipped` confirms it is providing +1 defence and protecting the parcel
+when defending. The `Equipment` display includes `'Shield': 'Pot Lid' only while
+it is equipped; `bag` still lists the owned item either way.
+
+After changing your shield, enter a displayed number to continue the story.
+Pressing Enter on an empty line only redisplays the menu: it does not confirm
+another action, move forward or switch the shield. To let a parcel take damage,
+stow the shield **before** starting a fight, then choose Defend in combat.
 
 ## Saves and collection
 

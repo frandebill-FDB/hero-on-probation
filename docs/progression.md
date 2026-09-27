@@ -92,6 +92,12 @@ for a saved choice: consume one kit to repair it, or deliver it as-is and keep
 all kits. There is no automatic repair without the player's confirmation.
 The `shield` command equips or stows an owned Pot Lid outside battles and endings;
 it keeps the item, autosaves, and retains the equipment choice across journeys.
+It toggles on every use, rather than always equipping or always removing the item.
+The on-screen `shield: stow ...` / `shield: equip ...` text describes the next
+action, not the current state. Type only `shield` at the input prompt. Afterward,
+choose a numbered story action; an empty Enter only redraws the menu and does not
+change equipment. See the [shield controls](../README.md#using-the-pot-lid-shield)
+for the confirmation messages and how to read the equipment display.
 Stowing it before defending lets the same character collect DISH DUTY even after
 buying a shield. Old replay-save rules remain unchanged.
 Retreat from the crossing keeps damage
