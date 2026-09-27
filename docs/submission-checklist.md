@@ -32,6 +32,23 @@ These links identify the verified code revisions. Subsequent documentation-only
 updates can also be checked in the repository's
 [Actions history](https://github.com/frandebill-FDB/hero-on-probation/actions/workflows/test.yml).
 
+## Delivery-collection follow-up — 2026-09-27
+
+- [x] Previously published revision `d063ac8` passed
+  [Ubuntu 24.04 CI on Python 3.10 and 3.12](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/36305590534).
+  Its two new commits update only the logs; code matches `27b8935`.
+- [x] Published fix `2b03dc3` adds shield equip/stow and an optional repair decision so an
+  existing character can collect the damaged-delivery ending after buying gear.
+- [x] All 150 local tests, Ruff checks and formatting pass, including an actual
+  two-journey command-line check with one character owning a shield and kit.
+- [ ] Personally playtest the new shield and repair choices.
+- [x] Published this gameplay fix and verified
+  [its CI on Python 3.10 and 3.12](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/36318847856).
+
+The two CI links distinguish the earlier baseline from the gameplay fix.
+The development log includes a September 27 verification entry while preserving
+the previously reviewed text.
+
 ## Student's remaining submission steps
 
 - [ ] Finish reviewing and updating the development log and feedback record.

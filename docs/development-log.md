@@ -119,6 +119,44 @@ In the next playtest, I want to focus on the quick second journey: changing comp
 
 Uploading the latest local version, Ubuntu CI and Moodle submission requirements still need confirmation. I also want to review how character state, branches, save replay and tests fit together, both for future maintenance and so I can explain the implementation clearly in a course presentation. Any later additions should ideally respond to specific playtest feedback, rather than adding features simply to make the project look bigger.
 
+## September 27: final verification and collectible delivery endings
+
+This entry updates the earlier pending-upload and pending-CI notes without
+rewriting their historical status. The English log updates were published as
+`2e71978` and `d063ac8`. The public revision `d063ac8` passed
+[Ubuntu 24.04 CI on Python 3.10 and 3.12](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/36305590534).
+Its code matched `27b8935` and also passed 140 tests in an isolated Python 3.12
+installation using the course's installation and module-launch commands.
+
+The review found one collection limitation: the Pot Lid stayed permanently
+equipped after purchase, preventing that character's parcel from becoming
+damaged. Repair kits also repaired damage automatically at delivery. I requested
+a small follow-up so the same character could still collect DISH DUTY after
+buying equipment, without starting another character or discarding permanent gear.
+
+The fix adds `shield` to equip or stow an owned Pot Lid outside battles and
+endings. The item stays in the bag, the change autosaves, and the equipment choice
+is retained across journeys. Delivering a damaged parcel with a Repair Kit now
+offers a saved choice: use one kit, or keep the kits and deliver the parcel as-is.
+Simply reaching or viewing that prompt consumes nothing and grants no reward.
+The controls, ending guide and optional collection clue were updated. Older
+replay-save gameplay remains unchanged.
+
+The gameplay fix was published as `2b03dc3`
+(`Keep delivery endings collectible with optional shields and repairs`).
+All **150 local tests**, Ruff checks and formatting passed. Ten new tests cover
+equipment changes, restrictions, save-write failure, persistence, repair choices,
+unaffected deliveries and an actual command-line run collecting intact and damaged
+delivery endings with the same character over two journeys. Tests use temporary
+storage and do not modify existing player saves.
+
+The published fix then passed
+[Ubuntu 24.04 CI on Python 3.10 and 3.12](https://github.com/frandebill-FDB/hero-on-probation/actions/runs/36318847856),
+including installation, all tests, module launch and code-style checks.
+This is verification of the named revision, not a guarantee of a bug-free game.
+My personal playtest of the new shield and repair choices, and Moodle submission
+with its confirmation receipt, remain to be completed.
+
 ## About AI assistance
 
 I completed the bulk of this game myself, from the story and gameplay to its main features and code implementation. AI mainly helped in two areas: setting up parts of the code framework early on, and assisting with debugging during development, such as investigating errors, checking logic or discussing possible fixes. The test results in this log are records of checks at the time; where I have not personally confirmed something through playtesting, I note that separately.
